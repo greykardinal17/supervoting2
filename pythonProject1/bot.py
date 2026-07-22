@@ -120,7 +120,7 @@ async def technical_processing_form(from_user_id_value, message,
                                      origin_message_id
                                      )
 
-    return builder, origin_message_id
+    return builder, origin_message_id, local_user_ratings_dict
 
 async def add_bottom(mesage_id_value, like_value, super_like_value,
                      message_text_value='test_text',
@@ -277,7 +277,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
     print('from_user_first_name_value -', from_user_first_name_value)
 
-    builder, origin_message_id = await technical_processing_form(from_user_id_value,
+    builder, origin_message_id,local_user_ratings_dic = await technical_processing_form(from_user_id_value,
                                                                  message,
                                                                  origin_message_id_value,
                                                                  local_user_ratings_dic)
@@ -437,7 +437,8 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
         await add_bottom_and_buttons_from_text(callback.message,
                                                callback.from_user.id,
                                                str(questionnaire_message_id),
-                                               callback.from_user.first_name)
+                                               callback.from_user.first_name,
+                                               user_ratings_dict)
 
     elif action == "✅super_like":
         print('dict_of_questionnaire_evaluation is', dict_of_form_evaluation)
