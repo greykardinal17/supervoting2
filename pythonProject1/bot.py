@@ -236,9 +236,10 @@ async def add_bottom(mesage_id_value, like_value, super_like_value,
 # async def photo_handler_message(message: types.Message):
 #     """Handle incoming photo messages using PhotoHandler."""
     # await photo_handler.from_photo_add_bottom_and_buttons(message)
-async def from_photo_add_bottom_and_buttons(message: types.Message, from_user_id_value: int = None,
-                                            origin_message_id_value: str = None
-                                            ):
+async def add_bottom_and_buttons_def_from_photo(message: types.Message,
+                                                from_user_id_value: int = None,
+                                                origin_message_id_value: str = None
+                                                ):
 
     builder, origin_message_id = await technical_processing_form(from_user_id_value, message, origin_message_id_value)
 
@@ -454,8 +455,10 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
             print('in callback user_data -', user_ratings_dict)
 
             await callback.answer()
-            await add_bottom_and_buttons_from_text(callback.message, callback.from_user.id,
-                                                   str(questionnaire_message_id), callback.from_user.first_name)
+            await add_bottom_and_buttons_from_text(callback.message,
+                                                   callback.from_user.id,
+                                                   str(questionnaire_message_id),
+                                                   callback.from_user.first_name)
 
     # elif action == "✅Желание":
     #     if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] > 0:
