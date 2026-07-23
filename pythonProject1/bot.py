@@ -114,7 +114,7 @@ async def technical_processing_form(from_user_id_value, message,
     print("local_user_ratings_dict[from_user_id][origin_message_id].get('like') -",
           local_user_ratings_dict[from_user_id][origin_message_id].get('like'))
 
-    user_ratings_dict = local_user_ratings_dict
+    # user_ratings_dict = local_user_ratings_dict
 
     builder = await keyborad_builder(dict_of_form_evaluation[origin_message_id],
                                      origin_message_id
