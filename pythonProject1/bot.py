@@ -281,9 +281,10 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
     print('from_user_first_name_value -', from_user_first_name_value)
 
     builder, origin_message_id,local_user_ratings_dic = await technical_processing_form(from_user_id_value,
-                                                                 message,
-                                                                 origin_message_id_value,
-                                                                 local_user_ratings_dic)
+                                                                                        message,
+                                                                                        origin_message_id_value,
+                                                                                        local_user_ratings_dic
+                                                                                        )
 
     like_value: int = dict_of_form_evaluation[origin_message_id]["like"]
     super_like_value: int = dict_of_form_evaluation[origin_message_id]["super_like"]
