@@ -60,7 +60,7 @@ async def technical_processing_form(from_user_id_value, message,
                                     local_user_ratings_dict=None
                                     ):
 
-    global user_ratings_dict
+    # global user_ratings_dict
     # global questionnaire_eval
     global dict_of_form_evaluation
 
@@ -69,8 +69,10 @@ async def technical_processing_form(from_user_id_value, message,
 
     print(' In technical_processing_form')
 
+    # if local_user_ratings_dict is None:
+    #     local_user_ratings_dict: dict[Any, Any] = user_ratings_dict
     if local_user_ratings_dict is None:
-        local_user_ratings_dict: dict[Any, Any] = user_ratings_dict
+        local_user_ratings_dict: dict[Any, Any] = {}
 
     if from_user_id_value is None:
         from_user_id = message.from_user.id
