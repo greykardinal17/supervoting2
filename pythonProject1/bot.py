@@ -463,7 +463,8 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
             await add_bottom_and_buttons_from_text(callback.message,
                                                    callback.from_user.id,
                                                    str(questionnaire_message_id),
-                                                   callback.from_user.first_name)
+                                                   callback.from_user.first_name,
+                                                   user_ratings_dict)
 
     # elif action == "✅Желание":
     #     if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] > 0:
