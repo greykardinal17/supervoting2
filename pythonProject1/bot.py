@@ -101,7 +101,7 @@ async def technical_processing_form(from_user_id_value, message,
     if local_user_ratings_dict[from_user_id][origin_message_id] is None:
         local_user_ratings_dict[from_user_id] = {origin_message_id: dict(like=0, super_like=0)}
     
-    print ('dict_of_form_evaluation ', dictionary_storing_message_ratings)
+    print ('dictionary_storing_message_ratings ', dictionary_storing_message_ratings)
     print('origin_message_id ', origin_message_id)
     print("local_user_ratings_dict - ", local_user_ratings_dict)
 
