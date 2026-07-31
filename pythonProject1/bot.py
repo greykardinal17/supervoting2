@@ -55,10 +55,11 @@ def setup_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
     """Configure dispatcher with handlers and middlewares."""
     dispatcher.include_router(router)
 
-async def technical_processing_form(from_user_id_value, message,
+async def technical_processing_form(from_user_id_value,
+                                    message,
                                     origin_message_id_value,
-                                    local_user_ratings_dict=None
-                                    ):
+                                    local_user_ratings_dict=None,
+                                    local_dictionary_storing_message_ratings=None):
 
     # global user_ratings_dict
     # global questionnaire_eval
