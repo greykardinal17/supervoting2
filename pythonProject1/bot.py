@@ -123,7 +123,7 @@ async def technical_processing_form(from_user_id_value,
                                      origin_message_id
                                      )
 
-    return builder, origin_message_id, local_user_ratings_dict
+    return builder, origin_message_id, local_user_ratings_dict,local_dictionary_storing_message_ratings
 
 async def add_bottom(mesage_id_value, like_value, super_like_value,
                      message_text_value='test_text',
@@ -277,6 +277,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
 
     global summaru
+    global dictionary_storing_message_ratings
 
     print('from_user_first_name_value -', from_user_first_name_value)
 
