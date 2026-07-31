@@ -1,7 +1,7 @@
 from aiogram import types
 
-from pythonProject1.bot import add_bottom, technical_processing_form
-from pythonProject1.utils.usefull_utils import generate_test_content_message
+from pythonProject1.bot import add_bottom
+from pythonProject1.utils.usefull_utils import generate_test_content_message, technical_processing_form
 
 
 class PhotoHandler:

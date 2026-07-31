@@ -1,10 +1,8 @@
 import asyncio
 import logging
-from typing import Any
 
 from pythonProject1 import config
 from pythonProject1.handlers.control_commands import router, options_4
-from pythonProject1.keyboards.keyboard_builder import keyborad_builder
 
 from pythonProject1.refine_form_text import refine_form_text
 
@@ -21,7 +19,7 @@ from aiogram.enums import ParseMode
 
 from aiogram.utils.formatting import (Pre)
 from aiogram.utils.formatting import Text, as_line, Bold
-from pythonProject1.utils.usefull_utils import generate_test_content_message
+from pythonProject1.utils.usefull_utils import generate_test_content_message, technical_processing_form
 from pythonProject1.handlers import control_commands
 
 summaru : list = ["Анкета"]
@@ -55,75 +53,6 @@ def setup_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
     """Configure dispatcher with handlers and middlewares."""
     dispatcher.include_router(router)
 
-async def technical_processing_form(from_user_id_value,
-                                    message,
-                                    origin_message_id_value,
-                                    local_user_ratings_dict=None,
-                                    local_dictionary_storing_message_ratings=None):
-
-    # global user_ratings_dict
-    # global questionnaire_eval
-    global dictionary_storing_message_ratings
-
-    from_user_id: int
-    origin_message_id: str
-
-    print(' In technical_processing_form')
-
-    if local_dictionary_storing_message_ratings is None:
-        local_dictionary_storing_message_ratings: dict[Any, Any] = dictionary_storing_message_ratings
-    if local_user_ratings_dict is None:
-        local_user_ratings_dict: dict[Any, Any] = {}
-
-    if from_user_id_value is None:
-        from_user_id = message.from_user.id
-    else:
-        from_user_id = from_user_id_value
-    print('from_user_id -', from_user_id)
-
-    if origin_message_id_value is None:
-        origin_message_id = str(message.message_id)
-    else:
-        origin_message_id = origin_message_id_value
-    print('origin_message_id -', origin_message_id)
-    print("local_user_ratings_dict - ", local_user_ratings_dict)
-    print('message -', message)
-    print('message.from_user.id -', message.from_user.id)
-
-    local_user_ratings_dict.setdefault(from_user_id, None)
-    local_user_ratings_dict.setdefault(origin_message_id, None)
-
-    if local_user_ratings_dict[from_user_id] is None:
-        local_user_ratings_dict[from_user_id] = {origin_message_id: dict(like=0, super_like=0)}
-
-    print("local_user_ratings_dict - ", local_user_ratings_dict)
-    local_user_ratings_dict[from_user_id].setdefault(origin_message_id, None)
-
-    if local_user_ratings_dict[from_user_id][origin_message_id] is None:
-        local_user_ratings_dict[from_user_id] = {origin_message_id: dict(like=0, super_like=0)}
-    
-    print ('dictionary_storing_message_ratings ', local_dictionary_storing_message_ratings)
-    print('origin_message_id ', origin_message_id)
-    print("local_user_ratings_dict - ", local_user_ratings_dict)
-
-    if local_dictionary_storing_message_ratings.get(origin_message_id) is None:
-        local_dictionary_storing_message_ratings[origin_message_id] = \
-            {
-                'like': 0,
-                'super_like': 0,
-                # 'Wish': 0
-            }
-    print('После присваивания')
-    print("local_user_ratings_dict[from_user_id][origin_message_id].get('like') -",
-          local_user_ratings_dict[from_user_id][origin_message_id].get('like'))
-
-    # user_ratings_dict = local_user_ratings_dict
-
-    builder = await keyborad_builder(local_dictionary_storing_message_ratings[origin_message_id],
-                                     origin_message_id
-                                     )
-
-    return builder, origin_message_id, local_user_ratings_dict,local_dictionary_storing_message_ratings
 
 async def add_bottom(mesage_id_value, like_value, super_like_value,
                      message_text_value='test_text',
@@ -285,9 +214,9 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
      origin_message_id,
      local_user_ratings_dic,
      dictionary_storing_message_ratings) = await technical_processing_form(from_user_id_value, message,
-                                                                            origin_message_id_value,
-                                                                            local_user_ratings_dic,
-                                                                            dictionary_storing_message_ratings)
+                                                                           origin_message_id_value,
+                                                                           local_user_ratings_dic,
+                                                                           dictionary_storing_message_ratings)
 
     like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
     super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
