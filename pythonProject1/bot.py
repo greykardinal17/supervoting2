@@ -31,7 +31,7 @@ summaru : list = ["Анкета"]
 #                             # 'Wish': 0
 #                             }
 
-dict_of_form_evaluation: dict = {}
+dictionary_storing_message_ratings: dict = {}
 
 # Здесь хранятся пользовательские данные.
 # Т.к. это словарь в памяти, то при перезапуске он очистится
@@ -62,7 +62,7 @@ async def technical_processing_form(from_user_id_value, message,
 
     # global user_ratings_dict
     # global questionnaire_eval
-    global dict_of_form_evaluation
+    global dictionary_storing_message_ratings
 
     from_user_id: int
     origin_message_id: str
@@ -101,12 +101,12 @@ async def technical_processing_form(from_user_id_value, message,
     if local_user_ratings_dict[from_user_id][origin_message_id] is None:
         local_user_ratings_dict[from_user_id] = {origin_message_id: dict(like=0, super_like=0)}
     
-    print ('dict_of_form_evaluation ', dict_of_form_evaluation )
+    print ('dict_of_form_evaluation ', dictionary_storing_message_ratings)
     print('origin_message_id ', origin_message_id)
     print("local_user_ratings_dict - ", local_user_ratings_dict)
 
-    if dict_of_form_evaluation.get(origin_message_id) is None:
-        dict_of_form_evaluation[origin_message_id] = \
+    if dictionary_storing_message_ratings.get(origin_message_id) is None:
+        dictionary_storing_message_ratings[origin_message_id] = \
             {
                 'like': 0,
                 'super_like': 0,
@@ -118,7 +118,7 @@ async def technical_processing_form(from_user_id_value, message,
 
     # user_ratings_dict = local_user_ratings_dict
 
-    builder = await keyborad_builder(dict_of_form_evaluation[origin_message_id],
+    builder = await keyborad_builder(dictionary_storing_message_ratings[origin_message_id],
                                      origin_message_id
                                      )
 
@@ -131,7 +131,7 @@ async def add_bottom(mesage_id_value, like_value, super_like_value,
                      ):
 
     # global questionnaire_eval
-    global dict_of_form_evaluation
+    global dictionary_storing_message_ratings
     global like_maximum
 
     integral_grade: float = round(like_value * 0.0003 * 10 +
@@ -288,8 +288,8 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
                                                                                         local_user_ratings_dic
                                                                                         )
 
-    like_value: int = dict_of_form_evaluation[origin_message_id]["like"]
-    super_like_value: int = dict_of_form_evaluation[origin_message_id]["super_like"]
+    like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
+    super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
 
     print('Position _ ', message.text.find('_________________'))
 
@@ -349,8 +349,8 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
     print('like_value - ',like_value)
     print('super_like_value - ', super_like_value)
 
-    dict_of_form_evaluation[origin_message_id]["like"] = like_value
-    dict_of_form_evaluation[origin_message_id]["super_like"] = super_like_value
+    dictionary_storing_message_ratings[origin_message_id]["like"] = like_value
+    dictionary_storing_message_ratings[origin_message_id]["super_like"] = super_like_value
 
     # await message.delete()
 
@@ -383,7 +383,7 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     print('questionnaire_message_id - ', questionnaire_message_id)
 
     user_ratings_dict.setdefault(callback.from_user.id, None)
-    dict_of_form_evaluation.setdefault(questionnaire_message_id, None)
+    dictionary_storing_message_ratings.setdefault(questionnaire_message_id, None)
 
     if user_ratings_dict[callback.from_user.id] is None:
         user_ratings_dict[callback.from_user.id] = \
@@ -407,8 +407,8 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
                     'Wish': 0
             }
 
-    if dict_of_form_evaluation[questionnaire_message_id] is None:
-        dict_of_form_evaluation[questionnaire_message_id] = \
+    if dictionary_storing_message_ratings[questionnaire_message_id] is None:
+        dictionary_storing_message_ratings[questionnaire_message_id] = \
             {
                 'like': 0,
                 'super_like': 0,
@@ -416,11 +416,11 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
             }
 
 
-    print('dict_of_questionnaire_evaluation is', dict_of_form_evaluation)
+    print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
     print('user_ratings_dict -', user_ratings_dict)
 
-    like_value: str = dict_of_form_evaluation[str(questionnaire_message_id)]['like']
-    super_like_value: str = dict_of_form_evaluation[str(questionnaire_message_id)]['super_like']
+    like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['like']
+    super_like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like']
 
     if (callback.message.html_text.find('Рейтинг анкеты(0.0)') == -1
             and like_value == 0
@@ -428,14 +428,14 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
         print('Нашли готовую интегральную оценку')
         like_value, super_like_value = await like_counter(questionnaire_message_id, callback.message.html_text)
 
-        dict_of_form_evaluation[str(questionnaire_message_id)]['like'] = like_value
-        dict_of_form_evaluation[str(questionnaire_message_id)]['super_like'] = super_like_value
+        dictionary_storing_message_ratings[str(questionnaire_message_id)]['like'] = like_value
+        dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like'] = super_like_value
 
 
     if action == "✅like":
 
-        print('dict_of_questionnaire_evaluation is', dict_of_form_evaluation)
-        dict_of_form_evaluation[str(questionnaire_message_id)]['like'] += 1
+        print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
+        dictionary_storing_message_ratings[str(questionnaire_message_id)]['like'] += 1
         user_ratings_dict[callback.from_user.id][questionnaire_message_id]['like'] += 1
         print('in callback user_data -', user_ratings_dict)
 
@@ -447,7 +447,7 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
                                                user_ratings_dict)
 
     elif action == "✅super_like":
-        print('dict_of_questionnaire_evaluation is', dict_of_form_evaluation)
+        print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
         print('user_ratings_dict[callback.from_user.id][questionnaire_message_id]["super_like"] is',
                 user_ratings_dict[callback.from_user.id][questionnaire_message_id]['super_like']
             )
@@ -456,8 +456,8 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
                                   show_alert=True
                                   )
         else:
-            dict_of_form_evaluation[str(questionnaire_message_id)]['super_like'] += 1
-            print('dict_of_questionnaire_evaluation is', dict_of_form_evaluation)
+            dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like'] += 1
+            print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
             user_ratings_dict[callback.from_user.id][questionnaire_message_id]['super_like'] += 1
             print('in callback user_data -', user_ratings_dict)
 
