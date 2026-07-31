@@ -70,8 +70,8 @@ async def technical_processing_form(from_user_id_value,
 
     print(' In technical_processing_form')
 
-    # if local_user_ratings_dict is None:
-    #     local_user_ratings_dict: dict[Any, Any] = user_ratings_dict
+    if local_dictionary_storing_message_ratings is None:
+        local_dictionary_storing_message_ratings: dict[Any, Any] = dictionary_storing_message_ratings
     if local_user_ratings_dict is None:
         local_user_ratings_dict: dict[Any, Any] = {}
 
