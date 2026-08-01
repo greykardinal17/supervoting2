@@ -189,7 +189,7 @@ async def add_bottom_and_buttons_def_from_photo(message: types.Message,
 
 
     if content.as_html().find('_________________') == -1:
-        content_text = await add_bottom(origin_message_id, content.as_html(), )
+        content_text = await Add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html(), )
 
         print('content_text is', content_text)
 
@@ -239,7 +239,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
     if content.as_html().find('_________________') == -1:
 
-        content_text = await add_bottom(origin_message_id, like_value, super_like_value, content.as_html())
+        content_text = await Add_bottom_bar_encourages_clicking_buttons(origin_message_id, like_value, super_like_value, content.as_html())
 
         print('content_text is', content_text)
 
@@ -261,13 +261,13 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
         common_text: str = message.html_text[0:message.html_text.find('_________________')]
         print('common_text - ', common_text)
 
-        common_text = await add_bottom(origin_message_id,
-                                       like_value,
-                                       super_like_value,
-                                       common_text,
-                                       from_user_first_name_value = from_user_first_name_value,
-                                       user_reputation= 43
-                                       )
+        common_text = await Add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+                                                                       like_value,
+                                                                       super_like_value,
+                                                                       common_text,
+                                                                       from_user_first_name_value = from_user_first_name_value,
+                                                                       user_reputation= 43
+                                                                       )
 
         print('common_text -', common_text)
 
