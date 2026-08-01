@@ -54,14 +54,14 @@ def setup_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
     dispatcher.include_router(router)
 
 
-async def add_bottom(mesage_id_value,
-                     like_value,
-                     super_like_value,
-                     message_text_value='test_text',
-                     info_line_value='',
-                     from_user_first_name_value='',
-                     user_reputation=50
-                     ):
+async def Add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
+                                                     like_value,
+                                                     super_like_value,
+                                                     message_text_value='test_text',
+                                                     info_line_value='',
+                                                     from_user_first_name_value='',
+                                                     user_reputation=50
+                                                     ):
 
     # global questionnaire_eval
     global dictionary_storing_message_ratings
