@@ -33,7 +33,7 @@ dictionary_storing_message_ratings: dict = {}
 
 # Здесь хранятся пользовательские данные.
 # Т.к. это словарь в памяти, то при перезапуске он очистится
-user_ratings_dict = {}
+dictionary_storing_user_ratings = {}
 
 like_maximum: int = 93
 super_like_maximum: int = 33
@@ -304,7 +304,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
 @router.callback_query(F.data.startswith("✅"))
 async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
-    global user_ratings_dict
+    global dictionary_storing_user_ratings
     global array_of_questionnaire_evaluation
 
     print('callback.from_user.first_name - ', callback.from_user.first_name)
@@ -315,11 +315,11 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     questionnaire_message_id: str = str(callback.data.split(":")[1])
     print('questionnaire_message_id - ', questionnaire_message_id)
 
-    user_ratings_dict.setdefault(callback.from_user.id, None)
+    dictionary_storing_user_ratings.setdefault(callback.from_user.id, None)
     dictionary_storing_message_ratings.setdefault(questionnaire_message_id, None)
 
-    if user_ratings_dict[callback.from_user.id] is None:
-        user_ratings_dict[callback.from_user.id] = \
+    if dictionary_storing_user_ratings[callback.from_user.id] is None:
+        dictionary_storing_user_ratings[callback.from_user.id] = \
             {questionnaire_message_id:
                 {
                     'like': 0,
@@ -328,12 +328,12 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
                 }
             }
 
-    user_ratings_dict[callback.from_user.id].setdefault(questionnaire_message_id, None)
+    dictionary_storing_user_ratings[callback.from_user.id].setdefault(questionnaire_message_id, None)
 
-    print('user_ratings_dict before check -', user_ratings_dict)
+    print('user_ratings_dict before check -', dictionary_storing_user_ratings)
 
-    if user_ratings_dict[callback.from_user.id][questionnaire_message_id] is None:
-        user_ratings_dict[callback.from_user.id][questionnaire_message_id] =  \
+    if dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id] is None:
+        dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id] =  \
             {
                     'like': 0,
                     'super_like': 0,
@@ -350,7 +350,7 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
 
 
     print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
-    print('user_ratings_dict -', user_ratings_dict)
+    print('user_ratings_dict -', dictionary_storing_user_ratings)
 
     like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['like']
     super_like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like']
@@ -369,37 +369,37 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
 
         print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
         dictionary_storing_message_ratings[str(questionnaire_message_id)]['like'] += 1
-        user_ratings_dict[callback.from_user.id][questionnaire_message_id]['like'] += 1
-        print('in callback user_data -', user_ratings_dict)
+        dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['like'] += 1
+        print('in callback user_data -', dictionary_storing_user_ratings)
 
         await callback.answer()
         await add_bottom_and_buttons_from_text(callback.message,
                                                callback.from_user.id,
                                                str(questionnaire_message_id),
                                                callback.from_user.first_name,
-                                               user_ratings_dict)
+                                               dictionary_storing_user_ratings)
 
     elif action == "✅super_like":
         print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
         print('user_ratings_dict[callback.from_user.id][questionnaire_message_id]["super_like"] is',
-                user_ratings_dict[callback.from_user.id][questionnaire_message_id]['super_like']
-            )
-        if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['super_like'] > 0:
+              dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['super_like']
+              )
+        if dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['super_like'] > 0:
             await callback.answer(text="Супер симпатия пока недоступна",
                                   show_alert=True
                                   )
         else:
             dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like'] += 1
             print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
-            user_ratings_dict[callback.from_user.id][questionnaire_message_id]['super_like'] += 1
-            print('in callback user_data -', user_ratings_dict)
+            dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['super_like'] += 1
+            print('in callback user_data -', dictionary_storing_user_ratings)
 
             await callback.answer()
             await add_bottom_and_buttons_from_text(callback.message,
                                                    callback.from_user.id,
                                                    str(questionnaire_message_id),
                                                    callback.from_user.first_name,
-                                                   user_ratings_dict)
+                                                   dictionary_storing_user_ratings)
 
     # elif action == "✅Желание":
     #     if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] > 0:
