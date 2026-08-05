@@ -1,7 +1,7 @@
 from aiogram import types
 
 from pythonProject1.bot import Add_bottom_bar_encourages_clicking_buttons
-from pythonProject1.utils.usefull_utils import generate_test_content_message, message_analyze_and_calcylate_ratings
+from pythonProject1.utils.usefull_utils import generate_test_content_message, analysis_message_analyze_and_rating_calculation
 
 
 class PhotoHandler:
@@ -18,8 +18,8 @@ class PhotoHandler:
         from_user_id_value: int = None,
         origin_message_id_value: str = None,
     ):
-        builder, origin_message_id = await message_analyze_and_calcylate_ratings(from_user_id_value, message,
-                                                                                 origin_message_id_value)
+        builder, origin_message_id = await analysis_message_analyze_and_rating_calculation(from_user_id_value, message,
+                                                                                           origin_message_id_value)
 
         print('Position _ ', message.caption.find('_________________'))
 

@@ -19,7 +19,7 @@ from aiogram.enums import ParseMode
 
 from aiogram.utils.formatting import (Pre)
 from aiogram.utils.formatting import Text, as_line, Bold
-from pythonProject1.utils.usefull_utils import generate_test_content_message, message_analyze_and_calcylate_ratings
+from pythonProject1.utils.usefull_utils import generate_test_content_message, analysis_message_analyze_and_rating_calculation
 from pythonProject1.handlers import control_commands
 
 summaru : list = ["Анкета"]
@@ -176,7 +176,7 @@ async def add_bottom_and_buttons_def_from_photo(message: types.Message,
                                                 origin_message_id_value: str = None
                                                 ):
 
-    builder, origin_message_id = await message_analyze_and_calcylate_ratings(from_user_id_value, message, origin_message_id_value)
+    builder, origin_message_id = await analysis_message_analyze_and_rating_calculation(from_user_id_value, message, origin_message_id_value)
 
     print('We are handling photo')
     print('Position _ ', message.caption.find('_________________'))
@@ -216,10 +216,10 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
     (builder,
      origin_message_id,
      local_user_ratings_dic,
-     dictionary_storing_message_ratings) = await message_analyze_and_calcylate_ratings(from_user_id_value, message,
-                                                                                       origin_message_id_value,
-                                                                                       local_user_ratings_dic,
-                                                                                       dictionary_storing_message_ratings)
+     dictionary_storing_message_ratings) = await analysis_message_analyze_and_rating_calculation(from_user_id_value, message,
+                                                                                                 origin_message_id_value,
+                                                                                                 local_user_ratings_dic,
+                                                                                                 dictionary_storing_message_ratings)
 
     like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
     super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
