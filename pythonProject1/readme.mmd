@@ -1,28 +1,28 @@
-flowchart TD
-   Start([НАЧАЛО]) --> Polling[start_polling]
-   Polling --> Update{UPDATE}
-   Update -->|message: PHOTO| PhotoHandler[add_bottom_and_buttons_def_from_photo]
-   Update -->|message: TEXT| TextHandler[add_bottom_and_buttons_from_text]
-   Update -->|callback_query| CallbackHandler[callbacks_calculation_of_likes]
-   PhotoHandler --> Process[technical_processing_form]
-   TextHandler --> Process
-   Process --> GenContent[generate_test_content_message]
-   GenContent --> CheckRating{Есть рейтинг?}
-   CheckRating -->|ДА| Extract[Извлечь like/super_like]
-   CheckRating -->|НЕТ| Init[like=0, super_like=0]
-   Extract --> Counter[like_counter при необходимости]
-   Init --> FormText[add_bottom → текст]
-   Counter --> FormText
-   FormText --> AnswerOrEdit{Тип действия}
-   AnswerOrEdit -->|новое сообщение| Answer[message.answer]
-   AnswerOrEdit -->|редактирование| Edit[message.edit_text]
-   CallbackHandler --> Parse[Распарсить callback.data]
-   Parse --> InitState[Инициализация словарей]
-   InitState --> CheckAction{action}
-   CheckAction -->|✅like| IncLike[like += 1]
-   CheckAction -->|✅super_like| CheckSuper[Уже есть суперлайк?]
-   CheckSuper -->|ДА| Alert[show_alert]
-   CheckSuper -->|НЕТ| IncSuper[super_like += 1]
-   IncLike --> UpdateUI[Перевызов add_bottom_...]
-   IncSuper --> UpdateUI
-   UpdateUI --> End([КОНЕЦ])
+   flowchart TD
+      Start([НАЧАЛО]) --> Polling[start_polling]
+      Polling --> Update{UPDATE}
+      Update -->|message: PHOTO| PhotoHandler[add_bottom_and_buttons_def_from_photo]
+      Update -->|message: TEXT| TextHandler[add_bottom_and_buttons_from_text]
+      Update -->|callback_query| CallbackHandler[callbacks_calculation_of_likes]
+      PhotoHandler --> Process[technical_processing_form]
+      TextHandler --> Process
+      Process --> GenContent[generate_test_content_message]
+      GenContent --> CheckRating{Есть рейтинг?}
+      CheckRating -->|ДА| Extract[Извлечь like/super_like]
+      CheckRating -->|НЕТ| Init[like=0, super_like=0]
+      Extract --> Counter[like_counter при необходимости]
+      Init --> FormText[add_bottom → текст]
+      Counter --> FormText
+      FormText --> AnswerOrEdit{Тип действия}
+      AnswerOrEdit -->|новое сообщение| Answer[message.answer]
+      AnswerOrEdit -->|редактирование| Edit[message.edit_text]
+      CallbackHandler --> Parse[Распарсить callback.data]
+      Parse --> InitState[Инициализация словарей]
+      InitState --> CheckAction{action}
+      CheckAction -->|✅like| IncLike[like += 1]
+      CheckAction -->|✅super_like| CheckSuper[Уже есть суперлайк?]
+      CheckSuper -->|ДА| Alert[show_alert]
+      CheckSuper -->|НЕТ| IncSuper[super_like += 1]
+      IncLike --> UpdateUI[Перевызов add_bottom_...]
+      IncSuper --> UpdateUI
+      UpdateUI --> End([КОНЕЦ])
