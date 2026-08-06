@@ -176,7 +176,10 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
                                             origin_message_id_value: str = None
                                             ):
 
-    builder, origin_message_id = await analysis_message_and_rating_calculation(from_user_id_value, message, origin_message_id_value)
+    builder, origin_message_id = await analysis_message_and_rating_calculation(from_user_id_value,
+                                                                               message,
+                                                                               origin_message_id_value
+                                                                               )
 
     print('We are handling photo')
     print('Position _ ', message.caption.find('_________________'))
