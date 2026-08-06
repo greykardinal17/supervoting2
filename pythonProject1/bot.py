@@ -211,6 +211,8 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
     global summaru
     global dictionary_storing_message_ratings
     global dictionary_storing_user_ratings
+    global dictionary_storing_message_ratings
+
 
     print('from_user_first_name_value -', from_user_first_name_value)
 
