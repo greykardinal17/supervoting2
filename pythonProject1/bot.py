@@ -205,21 +205,22 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
                                            from_user_id_value: int = None,
                                            origin_message_id_value: str = None,
                                            from_user_first_name_value='',
-                                           local_user_ratings_dic=None):
+                                           local_dictionary_storing_user_ratings=None):
 
 
     global summaru
     global dictionary_storing_message_ratings
+    global dictionary_storing_user_ratings
 
     print('from_user_first_name_value -', from_user_first_name_value)
 
     (builder,
      origin_message_id,
-     local_user_ratings_dic,
+     local_dictionary_storing_user_ratings,
      dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
                                                                                          message,
                                                                                          origin_message_id_value,
-                                                                                         local_user_ratings_dic,
+                                                                                         local_dictionary_storing_user_ratings,
                                                                                          dictionary_storing_message_ratings
                                                                                          )
 
