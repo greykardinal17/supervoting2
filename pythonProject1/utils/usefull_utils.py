@@ -153,11 +153,11 @@ async def generate_test_content_message(image_url_value=None, text_form_value=No
     return content_form
 
 
-async def analysis_message_analyze_and_rating_calculation(from_user_id_value,
-                                                          message,
-                                                          origin_message_id_value,
-                                                          local_user_ratings_dict=None,
-                                                          local_dictionary_storing_message_ratings=None):
+async def analysis_message_and_rating_calculation(from_user_id_value,
+                                                  message,
+                                                  origin_message_id_value,
+                                                  local_user_ratings_dict=None,
+                                                  local_dictionary_storing_message_ratings=None):
 
     # global user_ratings_dict
     # global questionnaire_eval
