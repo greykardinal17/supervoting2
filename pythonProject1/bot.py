@@ -240,7 +240,11 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
     if content.as_html().find('_________________') == -1:
 
-        content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id, like_value, super_like_value, content.as_html())
+        content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+                                                                        like_value,
+                                                                        super_like_value,
+                                                                        content.as_html()
+                                                                        )
 
         print('content_text is', content_text)
 
