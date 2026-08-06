@@ -1,6 +1,6 @@
 from aiogram import types
 
-from pythonProject1.bot import Add_bottom_bar_encourages_clicking_buttons
+from pythonProject1.bot import add_bottom_bar_encourages_clicking_buttons
 from pythonProject1.utils.usefull_utils import generate_test_content_message, analysis_message_analyze_and_rating_calculation
 
 
@@ -32,7 +32,7 @@ class PhotoHandler:
         print('content - ', content.as_html())
 
         if content.as_html().find('_________________') == -1:
-            content_text = await Add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html())
+            content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html())
 
             print('content_text is', content_text)
 
