@@ -220,7 +220,8 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
                                                                                          message,
                                                                                          origin_message_id_value,
                                                                                          local_user_ratings_dic,
-                                                                                         dictionary_storing_message_ratings)
+                                                                                         dictionary_storing_message_ratings
+                                                                                         )
 
     like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
     super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
