@@ -173,13 +173,27 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
     # await photo_handler.from_photo_add_bottom_and_buttons(message)
 async def add_bottom_and_buttons_from_photo(message: types.Message,
                                             from_user_id_value: int = None,
-                                            origin_message_id_value: str = None
-                                            ):
+                                            origin_message_id_value: str = None,
+                                            from_user_first_name_value='',
+                                            local_dictionary_storing_user_ratings=None):
 
-    builder, origin_message_id = await analysis_message_and_rating_calculation(from_user_id_value,
-                                                                               message,
-                                                                               origin_message_id_value
-                                                                               )
+    # builder, origin_message_id = await analysis_message_and_rating_calculation(from_user_id_value,
+    #                                                                            message,
+    #                                                                            origin_message_id_value
+    #                                                                            )
+
+    global dictionary_storing_message_ratings
+
+
+    (builder,
+     origin_message_id,
+     local_dictionary_storing_user_ratings,
+     dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
+                                                                                         message,
+                                                                                         origin_message_id_value,
+                                                                                         local_dictionary_storing_user_ratings,
+                                                                                         dictionary_storing_message_ratings
+                                                                                         )
 
     print('We are handling photo')
     print('Position _ ', message.caption.find('_________________'))
