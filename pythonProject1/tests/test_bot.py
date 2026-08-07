@@ -39,6 +39,23 @@ class TestBotHandlers(AsyncBotTestMixin):
         user = self.client.create_user()
         await user.send_message("Hello bot")
         assert user.has_received_message_containing("Популярность")
+    #
+    # async def test_send_photo_with_caption(self, client):
+    #     """Test sending a photo message with a caption."""
+    #     router = Router()
+    #
+    #     @router.message(lambda m: m.photo is not None and m.caption is not None)
+    #     async def photo_handler(message: Message) -> None:
+    #         await message.answer(f"Received photo with caption: {message.caption}")
+    #
+    #     client.dispatcher.include_router(router)
+    #
+    #     user = client.create_user()
+    #     # Send a photo with a caption (photo can be a file id or path depending on implementation)
+    #     responses = await user.send_photo(photo="photo_file_id", caption="Nice pic")
+    #
+    #     assert len(responses) == 1
+    #     assert "Nice pic" in responses[0].text
 
     # async def test_help_command(self):
     #     """Test /help command handler."""
