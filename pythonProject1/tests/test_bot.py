@@ -1,8 +1,10 @@
 """Tests for the Telegram bot using aiogram-test-framework."""
 import pytest
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, Router
+from aiogram.filters import Command
+from aiogram.types import Message
 
-from aiogram_test_framework import AsyncBotTestMixin
+from aiogram_test_framework import AsyncBotTestMixin, TestClient
 
 from pythonProject1.bot import setup_dispatcher
 
