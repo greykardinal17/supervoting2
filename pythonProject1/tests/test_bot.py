@@ -6,6 +6,42 @@ from aiogram_test_framework import AsyncBotTestMixin
 
 from pythonProject1.bot import setup_dispatcher
 
+def create_test_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
+    """Create a dispatcher with handlers for testing."""
+    router = Router()
+
+    @router.message(Command("start"))
+    async def start_handler(message: Message) -> None:
+        await message.answer("Welcome!")
+
+    @router.message(Command("greet"))
+    async def greet_handler(message: Message) -> None:
+        name = message.from_user.first_name if message.from_user else "User"
+        await message.answer(f"Hello, {name}!")
+
+    @router.message(lambda m: m.dice is not None)
+    async def dice_handler(message: Message) -> None:
+        await message.answer(f"You rolled: {message.dice.value}")
+
+    @router.message()
+    async def echo_handler(message: Message) -> None:
+        await message.answer(f"Echo: {message.text}")
+
+    dispatcher.include_router(router)
+
+
+@pytest.fixture
+async def client() -> TestClient:
+    """Provide a TestClient with handlers."""
+    client = await TestClient.create(
+        bot_token="123456:ABC",
+        bot_id=123456,
+        bot_username="test_bot",
+        bot_first_name="Test Bot",
+        setup_dispatcher_func=create_test_dispatcher,
+    )
+    yield client
+    await client.close()
 
 class TestBotHandlers(AsyncBotTestMixin):
     """Test class for bot handlers."""
