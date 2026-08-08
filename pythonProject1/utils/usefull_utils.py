@@ -161,6 +161,7 @@ async def analysis_message_and_rating_calculation(from_user_id_value,
 
     # global user_ratings_dict
     # global questionnaire_eval
+    from pythonProject1.bot import dictionary_storing_message_ratings
     global dictionary_storing_message_ratings
 
     from_user_id: int
