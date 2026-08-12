@@ -129,7 +129,7 @@ class TestBotHandlers(AsyncBotTestMixin):
             message_id=456,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=user.from_user,
+            from_user=user.user,
             photo=[
                 PhotoSize(
                     file_id="test_file_id_789",
