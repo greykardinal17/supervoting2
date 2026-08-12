@@ -3,7 +3,7 @@ import pytest
 from datetime import datetime
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import Command
-from aiogram.types import Message, Chat, User, PhotoSize, Update
+from aiogram.types import Message, Chat, PhotoSize, Update
 
 from aiogram_test_framework import AsyncBotTestMixin, TestClient
 
@@ -85,16 +85,12 @@ class TestBotHandlers(AsyncBotTestMixin):
         """Complete test with proper Message object containing photo and caption."""
         user = self.client.create_user(user_id=12345, first_name="TestUser")
         
-        # Создать реальный Message object с фото
+        # Создать реальный Message object с фото используя данные пользователя
         photo_message = Message(
             message_id=123,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=User(
-                id=user.user_id,
-                is_bot=False,
-                first_name=user.first_name
-            ),
+            from_user=user.from_user,
             photo=[
                 PhotoSize(
                     file_id="AgADBAAD-6cxG...",
@@ -112,7 +108,7 @@ class TestBotHandlers(AsyncBotTestMixin):
                 message=photo_message,
                 from_user_id_value=user.user_id,
                 origin_message_id_value="123",
-                from_user_first_name_value=user.first_name,
+                from_user_first_name_value=user.user.first_name,
                 local_dictionary_storing_user_ratings={}
             )
         except Exception as e:
@@ -128,16 +124,12 @@ class TestBotHandlers(AsyncBotTestMixin):
         """Test photo message object validation without calling handler."""
         user = self.client.create_user(user_id=12345, first_name="TestUser")
         
-        # Создать Message с фото и проверить его структуру
+        # Создать Message с фото и проверить его структуру используя create_user
         photo_message = Message(
             message_id=456,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=User(
-                id=user.user_id,
-                is_bot=False,
-                first_name=user.first_name
-            ),
+            from_user=user.from_user,
             photo=[
                 PhotoSize(
                     file_id="test_file_id_789",
@@ -153,7 +145,7 @@ class TestBotHandlers(AsyncBotTestMixin):
         assert photo_message.photo is not None, "Photo should not be None"
         assert photo_message.caption == "Beautiful photo 📷", "Caption mismatch"
         assert photo_message.from_user.id == user.user_id, "User ID mismatch"
-        assert photo_message.from_user.first_name == "TestUser", "User name mismatch"
+        assert photo_message.from_user.first_name == user.user.first_name, "User name mismatch"
         assert len(photo_message.photo) == 1, "Should have one photo"
         assert photo_message.photo[0].file_id == "test_file_id_789", "File ID mismatch"
         assert photo_message.photo[0].width == 800, "Width mismatch"
@@ -163,16 +155,12 @@ class TestBotHandlers(AsyncBotTestMixin):
         """Test photo message without caption."""
         user = self.client.create_user(user_id=12346, first_name="TestUser2")
         
-        # Создать Message с фото но без подписи
+        # Создать Message с фото но без подписи используя create_user
         photo_message = Message(
             message_id=789,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=User(
-                id=user.user_id,
-                is_bot=False,
-                first_name=user.first_name
-            ),
+            from_user=user.from_user,
             photo=[
                 PhotoSize(
                     file_id="photo_without_caption_id",
@@ -192,16 +180,12 @@ class TestBotHandlers(AsyncBotTestMixin):
         """Test message with multiple photos."""
         user = self.client.create_user(user_id=12347, first_name="TestUser3")
         
-        # Создать Message с несколькими фото
+        # Создать Message с несколькими фото используя create_user
         photo_message = Message(
             message_id=999,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=User(
-                id=user.user_id,
-                is_bot=False,
-                first_name=user.first_name
-            ),
+            from_user=user.from_user,
             photo=[
                 PhotoSize(
                     file_id="photo_1_id",
