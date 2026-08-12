@@ -90,7 +90,7 @@ class TestBotHandlers(AsyncBotTestMixin):
             message_id=123,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=user.from_user,
+            from_user=user.user,
             photo=[
                 PhotoSize(
                     file_id="AgADBAAD-6cxG...",
@@ -160,7 +160,7 @@ class TestBotHandlers(AsyncBotTestMixin):
             message_id=789,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=user.from_user,
+            from_user=user.user,
             photo=[
                 PhotoSize(
                     file_id="photo_without_caption_id",
@@ -185,7 +185,7 @@ class TestBotHandlers(AsyncBotTestMixin):
             message_id=999,
             date=int(datetime.now().timestamp()),
             chat=Chat(id=user.user_id, type="private"),
-            from_user=user.from_user,
+            from_user=user.user,
             photo=[
                 PhotoSize(
                     file_id="photo_1_id",
