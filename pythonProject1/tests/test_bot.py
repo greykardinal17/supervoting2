@@ -155,7 +155,7 @@ class TestBotHandlers(AsyncBotTestMixin):
         """Test photo message without caption."""
         user = self.client.create_user(user_id=12346, first_name="TestUser2")
         
-        # Создать Message с фото но без подписи используя create_user
+        # Создать Message с фото, но без подписи используя create_user
         photo_message = Message(
             message_id=789,
             date=int(datetime.now().timestamp()),
