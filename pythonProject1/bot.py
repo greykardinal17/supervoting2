@@ -194,6 +194,8 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
                                                                                          local_dictionary_storing_user_ratings,
                                                                                          dictionary_storing_message_ratings
                                                                                          )
+    like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
+    super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
 
     print('We are handling photo')
     print('Position _ ', message.caption.find('_________________'))
@@ -206,7 +208,13 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
 
 
     if content.as_html().find('_________________') == -1:
-        content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html(), )
+        # content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html(), )
+
+        content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+                                                                        like_value,
+                                                                        super_like_value,
+                                                                        content.as_html()
+                                                                        )
 
         print('content_text is', content_text)
 
