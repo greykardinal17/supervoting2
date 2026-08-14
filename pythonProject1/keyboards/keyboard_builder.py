@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-async def keyborad_builder(questionnaire_evaluation, message_id_value):
+async def keyborad_builder(questionnaire_evaluation: object, message_id_value: object) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
 
     call_back_value = "✅like:" + str(message_id_value)

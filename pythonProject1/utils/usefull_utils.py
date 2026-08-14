@@ -76,6 +76,7 @@ from typing import Any
 from aiogram.utils.formatting import Text, as_line, TextLink, Url, HashTag, ExpandableBlockQuote, Bold
 
 from pythonProject1.keyboards.keyboard_builder import keyborad_builder
+from pythonProject1.types import AnalysisResult
 
 
 # ,questionnaire_eval,dict_of_questionnaire_evaluation
@@ -221,5 +222,18 @@ async def analysis_message_and_rating_calculation(from_user_id_value,
     builder = await keyborad_builder(local_dictionary_storing_message_ratings[origin_message_id],
                                      origin_message_id
                                      )
+    # local_result : AnalysisResult = AnalysisResult ()
 
-    return builder, origin_message_id, local_user_ratings_dict,local_dictionary_storing_message_ratings
+    return (AnalysisResult(
+        builder=builder,
+        origin_message_id=origin_message_id,
+        local_user_ratings=local_user_ratings_dict,
+        message_ratings=local_dictionary_storing_message_ratings,
+    ),
+            builder,
+            origin_message_id,
+            local_user_ratings_dict,
+            local_dictionary_storing_message_ratings
+    )
+
+    return local_result, builder, origin_message_id, local_user_ratings_dict,local_dictionary_storing_message_ratings

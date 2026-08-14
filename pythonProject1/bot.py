@@ -19,6 +19,8 @@ from aiogram.enums import ParseMode
 
 from aiogram.utils.formatting import (Pre)
 from aiogram.utils.formatting import Text, as_line, Bold
+
+from pythonProject1.types import AnalysisResult
 from pythonProject1.utils.usefull_utils import generate_test_content_message, analysis_message_and_rating_calculation
 from pythonProject1.handlers import control_commands
 
@@ -184,8 +186,10 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
 
     global dictionary_storing_message_ratings
 
+    result : AnalysisResult
 
-    (builder,
+    (result,
+     builder,
      origin_message_id,
      local_dictionary_storing_user_ratings,
      dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
@@ -241,7 +245,8 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
     print('from_user_first_name_value -', from_user_first_name_value)
 
-    (builder,
+    (result,
+     builder,
      origin_message_id,
      local_dictionary_storing_user_ratings,
      dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
