@@ -211,7 +211,6 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
     print('content - ', content.as_html() )
 
 
-    # if content.as_html().find('_________________') == -1:
     if '_________________' not in content.as_html():
         # content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html(), )
 
@@ -289,7 +288,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
         )
     else:
 
-        if (message.html_text.find('Рейтинг анкеты(0.0)') == -1
+        if ('_________________' not in content.as_html()
                                                  and like_value == 0
                                            and super_like_value == 0) :
 
