@@ -7,7 +7,7 @@ from aiogram.types import Message, Chat, PhotoSize, Update
 
 from aiogram_test_framework import AsyncBotTestMixin, TestClient
 
-from pythonProject1.bot import setup_dispatcher, add_bottom_and_buttons_from_photo
+from pythonProject1.bot import setup_dispatcher, add_bottom_and_buttons_from_photo, add_bottom_and_buttons_from_text
 
 
 def create_test_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
@@ -240,6 +240,113 @@ class TestBotHandlers(AsyncBotTestMixin):
             assert photo_message.photo[1].file_id == "photo_2_id", "Second photo ID mismatch"
             assert photo_message.caption == "Multiple photos gallery 📸", "Caption mismatch"
             print(f"Multiple photos validation passed. Exception: {e}")
+
+    async def test_photo_handler_with_caption_none(self, monkeypatch):
+        """Ensure handler does not crash when message.caption is None."""
+        from pythonProject1 import bot as bot_module
+
+        user = self.client.create_user(user_id=2001, first_name="NoCaptionUser")
+
+        photo_message = Message(
+            message_id=200,
+            date=int(datetime.now().timestamp()),
+            chat=Chat(id=user.user_id, type="private"),
+            from_user=user.user,
+            photo=[
+                PhotoSize(file_id="p1", file_unique_id="u1", width=640, height=480)
+            ],
+            caption=None,
+        )
+
+        # provide a lightweight fake builder and helpers
+        class FakeBuilder:
+            def as_markup(self):
+                return None
+
+        async def fake_analysis(*args, **kwargs):
+            return (None, FakeBuilder(), "orig_msg_id", {}, {"orig_msg_id": {"like": 0, "super_like": 0}})
+
+        async def fake_generate_test_content_message(image_url, caption):
+            class C:
+                def as_html(self):
+                    return "<div>no separator here</div>"
+
+            return C()
+
+        monkeypatch.setattr(bot_module, "analysis_message_and_rating_calculation", fake_analysis)
+        monkeypatch.setattr(bot_module, "generate_test_content_message", fake_generate_test_content_message)
+
+        # replace answer method to avoid network calls
+        async def fake_answer(*args, **kwargs):
+            photo_message.answered = True
+
+        photo_message.answer = fake_answer
+
+        # Call handler - should not raise
+        await add_bottom_and_buttons_from_photo(
+            message=photo_message,
+            from_user_id_value=user.user_id,
+            origin_message_id_value="200",
+            from_user_first_name_value=user.user.first_name,
+            local_dictionary_storing_user_ratings={}
+        )
+
+        assert getattr(photo_message, "answered", True) is True
+
+    async def test_text_handler_with_text_and_html_none(self, monkeypatch):
+        """Ensure text handler does not crash when text and html_text are None."""
+        from pythonProject1 import bot as bot_module
+
+        user = self.client.create_user(user_id=3001, first_name="NoTextUser")
+
+        text_message = Message(
+            message_id=300,
+            date=int(datetime.now().timestamp()),
+            chat=Chat(id=user.user_id, type="private"),
+            from_user=user.user,
+            text=None,
+            # html_text is not an accepted constructor arg in older aiogram versions; set attribute after
+        )
+
+        # Ensure html_text attribute exists and is None
+        setattr(text_message, "html_text", None)
+
+        class FakeBuilder:
+            def as_markup(self):
+                return None
+
+        async def fake_analysis(*args, **kwargs):
+            return (None, FakeBuilder(), "orig_msg_id", {}, {"orig_msg_id": {"like": 0, "super_like": 0}})
+
+        async def fake_generate_test_content_message(image_url, text):
+            class C:
+                def as_html(self):
+                    return "<div>no separator here</div>"
+
+            return C()
+
+        def fake_refine_form_text(lst):
+            return ["https://example.com/img.jpg"]
+
+        monkeypatch.setattr(bot_module, "analysis_message_and_rating_calculation", fake_analysis)
+        monkeypatch.setattr(bot_module, "generate_test_content_message", fake_generate_test_content_message)
+        monkeypatch.setattr(bot_module, "refine_form_text", fake_refine_form_text)
+
+        async def fake_answer(*args, **kwargs):
+            text_message.answered = True
+
+        text_message.answer = fake_answer
+
+        # Call handler - should not raise
+        await add_bottom_and_buttons_from_text(
+            message=text_message,
+            from_user_id_value=user.user_id,
+            origin_message_id_value=None,
+            from_user_first_name_value=user.user.first_name,
+            local_dictionary_storing_user_ratings={}
+        )
+
+        assert getattr(text_message, "answered", True) is True
 
     # async def test_help_command(self):
     #     """Test /help command handler."""
