@@ -51,6 +51,7 @@ bot = Bot(
 )
 # Диспетчер
 
+
 def setup_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
     """Configure dispatcher with handlers and middlewares."""
     dispatcher.include_router(router)
@@ -113,7 +114,7 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
         #             #print(f"{r2} ({r2:.2%})")
         #
         #             # as_key_value("Красота 💟",
-        #             #         f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"]/
+        #             #         f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"]/\
         #             #                     like_maximum:.2%}"
         #             #               f")"
         #             #              ),
@@ -172,7 +173,7 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
 @router.message(F.content_type == ContentType.PHOTO)
 # async def photo_handler_message(message: types.Message):
 #     """Handle incoming photo messages using PhotoHandler."""
-    # await photo_handler.from_photo_add_bottom_and_buttons(message)
+#     # await photo_handler.from_photo_add_bottom_and_buttons(message)
 async def add_bottom_and_buttons_from_photo(message: types.Message,
                                             from_user_id_value: int = None,
                                             origin_message_id_value: str = None,
@@ -202,11 +203,17 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
     super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
 
     print('We are handling photo')
-    print('Position _ ', message.caption.find('_________________'))
+
+    # Normalize caption to avoid AttributeError when it's None
+    caption = getattr(message, 'caption', None) or ""
+    try:
+        print('Position _ ', caption.find('_________________'))
+    except Exception:
+        print('Position check failed for caption')
 
     image_url = 'https://ravagaren.wordpress.com/wp-content/uploads/2023/03/photo_2023-08-19_11-36-11.jpg?w=640'
 
-    content = await generate_test_content_message(image_url, message.caption)
+    content = await generate_test_content_message(image_url, caption)
 
     print('content - ', content.as_html() )
 
@@ -259,16 +266,23 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
     like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
     super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
 
-    print('Position _ ', message.text.find('_________________'))
+    # Normalize text/html_text to avoid AttributeError when they are None
+    text = getattr(message, 'text', None) or ""
+    html_text = getattr(message, 'html_text', None) or ""
 
-    summaru.append(message.text)
+    try:
+        print('Position _ ', text.find('_________________'))
+    except Exception:
+        print('Position check failed for text')
+
+    summaru.append(text)
     summaru = refine_form_text(summaru)
 
     image_anket_url: str = summaru[0]
 
     print ('image_anket_url', image_anket_url)
 
-    content = await generate_test_content_message(image_anket_url, message.text)
+    content = await generate_test_content_message(image_anket_url, text)
 
     print('content - ', content.as_html())
 
@@ -289,15 +303,17 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
         )
     else:
 
-        if (message.html_text.find('Рейтинг анкеты(0.0)') == -1
+        if (html_text.find('Рейтинг анкеты(0.0)') == -1
                                                  and like_value == 0
                                            and super_like_value == 0) :
 
             print('Нашли готовую интегральную оценку')
-            like_value, super_like_value = await like_counter(origin_message_id,message.html_text)
+            like_value, super_like_value = await like_counter(origin_message_id,html_text)
             # print()
 
-        common_text: str = message.html_text[0:message.html_text.find('_________________')]
+        # safe slicing even if marker not found (html_text.find returns -1 handled above)
+        idx = html_text.find('_________________')
+        common_text: str = html_text[0:idx] if idx != -1 else html_text
         print('common_text - ', common_text)
 
         common_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
@@ -340,6 +356,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 #     # dict_of_questionnaire_evaluation[origin_message_id]["super_like"] = super_like_value
 #
 #     return like_value, super_like_value
+
 
 @router.callback_query(F.data.startswith("✅"))
 async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
@@ -394,11 +411,14 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['like']
     super_like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like']
 
-    if (callback.message.html_text.find('Рейтинг анкеты(0.0)') == -1
+    # Normalize callback message html_text to avoid AttributeError when it's None
+    cb_html = getattr(callback.message, 'html_text', None) or ""
+
+    if (cb_html.find('Рейтинг анкеты(0.0)') == -1
             and like_value == 0
             and super_like_value == 0):
         print('Нашли готовую интегральную оценку')
-        like_value, super_like_value = await like_counter(questionnaire_message_id, callback.message.html_text)
+        like_value, super_like_value = await like_counter(questionnaire_message_id, cb_html)
 
         dictionary_storing_message_ratings[str(questionnaire_message_id)]['like'] = like_value
         dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like'] = super_like_value
