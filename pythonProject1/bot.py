@@ -462,4 +462,4 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     #     if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] > 0:
     #         await callback.answer(text="Голосовать можно один раз",
     #                               show_alert=True
-    ,
+    # ,
