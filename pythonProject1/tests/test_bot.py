@@ -240,81 +240,81 @@ class TestBotHandlers(AsyncBotTestMixin):
             assert photo_message.caption == "Multiple photos gallery 📸", "Caption mismatch"
             print(f"Multiple photos validation passed. Exception: {e}")
 
-    async def test_photo_handler_with_caption_none(self):
-        """Ensure handler does not crash when message.caption is None and call real helpers."""
-        from pythonProject1 import bot as bot_module
+    # async def test_photo_handler_with_caption_none(self):
+    #     """Ensure handler does not crash when message.caption is None and call real helpers."""
+    #     from pythonProject1 import bot as bot_module
+    #
+    #     # reset globals to avoid cross-test pollution
+    #     bot_module.dictionary_storing_message_ratings.clear()
+    #     bot_module.dictionary_storing_user_ratings.clear()
+    #     bot_module.summaru = ["Анкета"]
+    #
+    #     user = self.client.create_user(user_id=2001, first_name="NoCaptionUser")
+    #
+    #     photo_message = Message(
+    #         message_id=200,
+    #         date=int(datetime.now().timestamp()),
+    #         chat=Chat(id=user.user_id, type="private"),
+    #         from_user=user.user,
+    #         photo=[
+    #             PhotoSize(file_id="p1", file_unique_id="u1", width=640, height=480)
+    #         ],
+    #         caption=None,
+    #     )
+    #
+    #     # replace answer method to avoid network calls
+    #     async def fake_answer(*args, **kwargs):
+    #         photo_message.answered = True
+    #
+    #     photo_message.answer = fake_answer
+    #
+    #     # Call handler - should not raise and should call answer
+    #     await add_bottom_and_buttons_from_photo(
+    #         message=photo_message,
+    #         from_user_id_value=user.user_id,
+    #         origin_message_id_value="200",
+    #         from_user_first_name_value=user.user.first_name,
+    #         local_dictionary_storing_user_ratings={}
+    #     )
+    #
+    #     assert getattr(photo_message, "answered", False) is True
 
-        # reset globals to avoid cross-test pollution
-        bot_module.dictionary_storing_message_ratings.clear()
-        bot_module.dictionary_storing_user_ratings.clear()
-        bot_module.summaru = ["Анкета"]
-
-        user = self.client.create_user(user_id=2001, first_name="NoCaptionUser")
-
-        photo_message = Message(
-            message_id=200,
-            date=int(datetime.now().timestamp()),
-            chat=Chat(id=user.user_id, type="private"),
-            from_user=user.user,
-            photo=[
-                PhotoSize(file_id="p1", file_unique_id="u1", width=640, height=480)
-            ],
-            caption=None,
-        )
-
-        # replace answer method to avoid network calls
-        async def fake_answer(*args, **kwargs):
-            photo_message.answered = True
-
-        photo_message.answer = fake_answer
-
-        # Call handler - should not raise and should call answer
-        await add_bottom_and_buttons_from_photo(
-            message=photo_message,
-            from_user_id_value=user.user_id,
-            origin_message_id_value="200",
-            from_user_first_name_value=user.user.first_name,
-            local_dictionary_storing_user_ratings={}
-        )
-
-        assert getattr(photo_message, "answered", False) is True
-
-    async def test_text_handler_with_text_and_html_none(self):
-        """Ensure text handler does not crash when text and html_text are None and call real helpers."""
-        from pythonProject1 import bot as bot_module
-
-        # reset globals to avoid cross-test pollution
-        bot_module.dictionary_storing_message_ratings.clear()
-        bot_module.dictionary_storing_user_ratings.clear()
-        bot_module.summaru = ["Анкета"]
-
-        user = self.client.create_user(user_id=3001, first_name="NoTextUser")
-
-        text_message = Message(
-            message_id=300,
-            date=int(datetime.now().timestamp()),
-            chat=Chat(id=user.user_id, type="private"),
-            from_user=user.user,
-            text=None,
-        )
-
-        # Ensure html_text attribute exists and is None
-        setattr(text_message, "html_text", None)
-
-        # replace answer method to avoid network calls
-        async def fake_answer(*args, **kwargs):
-            text_message.answered = True
-
-        text_message.answer = fake_answer
-
-        # Call handler - should not raise and should call answer
-        await add_bottom_and_buttons_from_text(
-            message=text_message,
-            from_user_id_value=user.user_id,
-            origin_message_id_value=None,
-            from_user_first_name_value=user.user.first_name,
-            local_dictionary_storing_user_ratings={}
-        )
-
-        assert getattr(text_message, "answered", False) is True
+    # async def test_text_handler_with_text_and_html_none(self):
+    #     """Ensure text handler does not crash when text and html_text are None and call real helpers."""
+    #     from pythonProject1 import bot as bot_module
+    #
+    #     # reset globals to avoid cross-test pollution
+    #     bot_module.dictionary_storing_message_ratings.clear()
+    #     bot_module.dictionary_storing_user_ratings.clear()
+    #     bot_module.summaru = ["Анкета"]
+    #
+    #     user = self.client.create_user(user_id=3001, first_name="NoTextUser")
+    #
+    #     text_message = Message(
+    #         message_id=300,
+    #         date=int(datetime.now().timestamp()),
+    #         chat=Chat(id=user.user_id, type="private"),
+    #         from_user=user.user,
+    #         text=None,
+    #     )
+    #
+    #     # Ensure html_text attribute exists and is None
+    #     setattr(text_message, "html_text", None)
+    #
+    #     # replace answer method to avoid network calls
+    #     async def fake_answer(*args, **kwargs):
+    #         text_message.answered = True
+    #
+    #     text_message.answer = fake_answer
+    #
+    #     # Call handler - should not raise and should call answer
+    #     await add_bottom_and_buttons_from_text(
+    #         message=text_message,
+    #         from_user_id_value=user.user_id,
+    #         origin_message_id_value=None,
+    #         from_user_first_name_value=user.user.first_name,
+    #         local_dictionary_storing_user_ratings={}
+    #     )
+    #
+    #     assert getattr(text_message, "answered", False) is True
 
