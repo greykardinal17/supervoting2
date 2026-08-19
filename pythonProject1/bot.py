@@ -473,4 +473,28 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     #     if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] > 0:
     #         await callback.answer(text="Голосовать можно один раз",
     #                               show_alert=True
-    ,
+    #                               )
+    #     else:
+    #         dict_of_questionnaire_evaluation[str(questionnaire_message_id)]['Wish'] += 1
+    #         print('dict_of_questionnaire_evaluation is', dict_of_questionnaire_evaluation)
+    #         user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] += 1
+    #         print('in callback user_data -', user_ratings_dict)
+    #
+    #         await callback.answer()
+    #         await from_text_add_bottom_and_buttons(callback.message, callback.from_user.id,
+    #                                                str(questionnaire_message_id))
+
+
+async def main():
+    """Start the bot and polling for updates."""
+    dispatcher = Dispatcher()
+    setup_dispatcher(bot, dispatcher)
+
+    try:
+        await dispatcher.start_polling(bot)
+    finally:
+        await bot.session.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
