@@ -76,7 +76,7 @@ from typing import Any
 from aiogram.utils.formatting import Text, as_line, TextLink, Url, HashTag, ExpandableBlockQuote, Bold
 
 from pythonProject1.keyboards.keyboard_builder import keyborad_builder
-from pythonProject1.types import AnalysisResult
+from pythonProject1.my_types import AnalysisResult
 
 
 # ,questionnaire_eval,dict_of_questionnaire_evaluation
