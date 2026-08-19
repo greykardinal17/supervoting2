@@ -182,20 +182,19 @@ class TestBotHandlers(AsyncBotTestMixin):
             ]
         )
 
-        # Попытаться вызвать обработчик и при ошибке проверить поля
-        try:
-            await add_bottom_and_buttons_from_photo(
-                message=photo_message,
-                from_user_id_value=user.user_id,
-                origin_message_id_value="789",
-                from_user_first_name_value=user.user.first_name,
-                local_dictionary_storing_user_ratings={}
-            )
-        except Exception as e:
-            assert photo_message.photo is not None, "Photo should not be None"
-            assert photo_message.caption is None, "Caption should be None for this test"
-            assert len(photo_message.photo) > 0, "Photo list should not be empty"
-            print(f"Photo without caption validation passed. Exception: {e}")
+        # Вызов обработчика — тест должен упасть, если обработчик вызывает методы на None
+        await add_bottom_and_buttons_from_photo(
+            message=photo_message,
+            from_user_id_value=user.user_id,
+            origin_message_id_value="789",
+            from_user_first_name_value=user.user.first_name,
+            local_dictionary_storing_user_ratings={}
+        )
+
+        # Проверяем поля — эти проверки выполнятся только если обработчик не выбросил исключение
+        assert photo_message.photo is not None, "Photo should not be None"
+        assert photo_message.caption is None, "Caption should be None for this test"
+        assert len(photo_message.photo) > 0, "Photo list should not be empty"
 
     async def test_send_multiple_photos(self):
         """Test message with multiple photos by calling the handler."""
