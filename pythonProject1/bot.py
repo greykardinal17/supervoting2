@@ -114,7 +114,7 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
         #             #print(f"{r2} ({r2:.2%})")
         #
         #             # as_key_value("Красота 💟",
-        #             #         f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"]/\
+        #             #         f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"/\
         #             #                     like_maximum:.2%}"
         #             #               f")"
         #             #              ),
@@ -232,8 +232,10 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
 
         print('content_text is', content_text)
 
-        await message.answer(
-            content_text,
+        # Use bot.send_message instead of message.answer so the handler can be called directly in tests
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=content_text,
             link_preview_options=options_4,
             reply_markup=builder.as_markup(),
         )
@@ -298,8 +300,10 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
         print('content_text is', content_text)
 
-        await message.answer(
-            content_text,
+        # Use bot.send_message instead of message.answer so tests can call handler directly
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=content_text,
             link_preview_options=options_4,
             reply_markup=builder.as_markup(),
         )
@@ -329,8 +333,11 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
         print('common_text -', common_text)
 
 
-        await message.edit_text(
-            common_text,
+        # Use bot.edit_message_text instead of message.edit_text so handler works in tests
+        await bot.edit_message_text(
+            text=common_text,
+            chat_id=message.chat.id,
+            message_id=message.message_id,
             link_preview_options=options_4,
             reply_markup=builder.as_markup(),
         )
@@ -466,29 +473,4 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     #     if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] > 0:
     #         await callback.answer(text="Голосовать можно один раз",
     #                               show_alert=True
-    #                               )
-    #     else:
-    #         dict_of_questionnaire_evaluation[str(questionnaire_message_id)]['Wish'] += 1
-    #         print('dict_of_questionnaire_evaluation is', dict_of_questionnaire_evaluation)
-    #         user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] += 1
-    #         print('in callback user_data -', user_ratings_dict)
-    #
-    #         await callback.answer()
-    #         await from_text_add_bottom_and_buttons(callback.message, callback.from_user.id,
-    #                                                str(questionnaire_message_id))
-
-
-# Запуск процесса поллинга новых апдейтов
-async def main():
-    dp = Dispatcher()
-
-    dp.include_routers(control_commands.router)
-
-    # Запускаем бота и пропускаем все накопленные входящие
-    # Да, этот метод можно вызвать даже если у вас поллинг
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    ,
