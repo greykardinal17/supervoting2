@@ -204,6 +204,8 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
 
     print('We are handling photo')
 
+    # print('Position _ ', message.caption.find('_________________'))
+
     # Normalize caption to avoid AttributeError when it's None
     caption = getattr(message, 'caption', None) or ""
     try:
