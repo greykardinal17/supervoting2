@@ -241,9 +241,14 @@ class TestBotHandlers(AsyncBotTestMixin):
             assert photo_message.caption == "Multiple photos gallery 📸", "Caption mismatch"
             print(f"Multiple photos validation passed. Exception: {e}")
 
-    async def test_photo_handler_with_caption_none(self, monkeypatch):
-        """Ensure handler does not crash when message.caption is None."""
+    async def test_photo_handler_with_caption_none(self):
+        """Ensure handler does not crash when message.caption is None and call real helpers."""
         from pythonProject1 import bot as bot_module
+
+        # reset globals to avoid cross-test pollution
+        bot_module.dictionary_storing_message_ratings.clear()
+        bot_module.dictionary_storing_user_ratings.clear()
+        bot_module.summaru = ["Анкета"]
 
         user = self.client.create_user(user_id=2001, first_name="NoCaptionUser")
 
@@ -258,31 +263,13 @@ class TestBotHandlers(AsyncBotTestMixin):
             caption=None,
         )
 
-        # provide a lightweight fake builder and helpers
-        class FakeBuilder:
-            def as_markup(self):
-                return None
-
-        async def fake_analysis(*args, **kwargs):
-            return (None, FakeBuilder(), "orig_msg_id", {}, {"orig_msg_id": {"like": 0, "super_like": 0}})
-
-        async def fake_generate_test_content_message(image_url, caption):
-            class C:
-                def as_html(self):
-                    return "<div>no separator here</div>"
-
-            return C()
-
-        monkeypatch.setattr(bot_module, "analysis_message_and_rating_calculation", fake_analysis)
-        monkeypatch.setattr(bot_module, "generate_test_content_message", fake_generate_test_content_message)
-
         # replace answer method to avoid network calls
         async def fake_answer(*args, **kwargs):
             photo_message.answered = True
 
         photo_message.answer = fake_answer
 
-        # Call handler - should not raise
+        # Call handler - should not raise and should call answer
         await add_bottom_and_buttons_from_photo(
             message=photo_message,
             from_user_id_value=user.user_id,
@@ -291,11 +278,16 @@ class TestBotHandlers(AsyncBotTestMixin):
             local_dictionary_storing_user_ratings={}
         )
 
-        assert getattr(photo_message, "answered", True) is True
+        assert getattr(photo_message, "answered", False) is True
 
-    async def test_text_handler_with_text_and_html_none(self, monkeypatch):
-        """Ensure text handler does not crash when text and html_text are None."""
+    async def test_text_handler_with_text_and_html_none(self):
+        """Ensure text handler does not crash when text and html_text are None and call real helpers."""
         from pythonProject1 import bot as bot_module
+
+        # reset globals to avoid cross-test pollution
+        bot_module.dictionary_storing_message_ratings.clear()
+        bot_module.dictionary_storing_user_ratings.clear()
+        bot_module.summaru = ["Анкета"]
 
         user = self.client.create_user(user_id=3001, first_name="NoTextUser")
 
@@ -305,39 +297,18 @@ class TestBotHandlers(AsyncBotTestMixin):
             chat=Chat(id=user.user_id, type="private"),
             from_user=user.user,
             text=None,
-            # html_text is not an accepted constructor arg in older aiogram versions; set attribute after
         )
 
         # Ensure html_text attribute exists and is None
         setattr(text_message, "html_text", None)
 
-        class FakeBuilder:
-            def as_markup(self):
-                return None
-
-        async def fake_analysis(*args, **kwargs):
-            return (None, FakeBuilder(), "orig_msg_id", {}, {"orig_msg_id": {"like": 0, "super_like": 0}})
-
-        async def fake_generate_test_content_message(image_url, text):
-            class C:
-                def as_html(self):
-                    return "<div>no separator here</div>"
-
-            return C()
-
-        def fake_refine_form_text(lst):
-            return ["https://example.com/img.jpg"]
-
-        monkeypatch.setattr(bot_module, "analysis_message_and_rating_calculation", fake_analysis)
-        monkeypatch.setattr(bot_module, "generate_test_content_message", fake_generate_test_content_message)
-        monkeypatch.setattr(bot_module, "refine_form_text", fake_refine_form_text)
-
+        # replace answer method to avoid network calls
         async def fake_answer(*args, **kwargs):
             text_message.answered = True
 
         text_message.answer = fake_answer
 
-        # Call handler - should not raise
+        # Call handler - should not raise and should call answer
         await add_bottom_and_buttons_from_text(
             message=text_message,
             from_user_id_value=user.user_id,
@@ -346,55 +317,5 @@ class TestBotHandlers(AsyncBotTestMixin):
             local_dictionary_storing_user_ratings={}
         )
 
-        assert getattr(text_message, "answered", True) is True
+        assert getattr(text_message, "answered", False) is True
 
-    # async def test_help_command(self):
-    #     """Test /help command handler."""
-    #     user = self.client.create_user()
-    #     await user.send_command("help")
-    #     assert user.has_received_message_containing("Available commands")
-
-    # async def test_echo_command_with_args(self):
-    #     """Test /echo command with arguments."""
-    #     user = self.client.create_user()
-    #     await user.send_command("echo", args="Hello World")
-    #     assert user.has_received_message_containing("Echo: Hello World")
-
-    # async def test_echo_command_without_args(self):
-    #     """Test /echo command without arguments."""
-    #     user = self.client.create_user()
-    #     await user.send_command("echo")
-    #     assert user.has_received_message_containing("Please provide text")
-
-    # async def test_multiple_users_interaction(self):
-    #     """Test interaction with multiple users."""
-    #     user1 = self.client.create_user(user_id=1, first_name="Alice")
-    #     user2 = self.client.create_user(user_id=2, first_name="Bob")
-    #
-    #     # User1 interaction
-    #     await user1.send_command("start")
-    #     assert user1.has_received_message_containing("Welcome")
-    #
-    #     # User2 interaction
-    #     await user2.send_command("help")
-    #     assert user2.has_received_message_containing("Available commands")
-    #
-    #     # Check that messages are isolated
-    #     assert not user1.has_received_message_containing("Available commands")
-    #     assert not user2.has_received_message_containing("Welcome")
-
-    # async def test_message_sequence(self):
-    #     """Test sequence of messages from one user."""
-    #     user = self.client.create_user()
-    #
-    #     # Send start command
-    #     await user.send_command("start")
-    #     assert user.has_received_message_containing("Welcome")
-    #
-    #     # Send regular message
-    #     await user.send_message("Test message")
-    #     assert user.has_received_message_containing("You said: Test message")
-    #
-    #     # Send echo command
-    #     await user.send_command("echo", args="test echo")
-    #     assert user.has_received_message_containing("Echo: test echo")
