@@ -81,6 +81,9 @@ class TestBotHandlers(AsyncBotTestMixin):
         import pythonProject1.bot as bot_module
 
         user = self.client.create_user()
+        # Replace the real bot with the test client's bot so bot.send_message() uses the test framework
+        bot_module.bot = self.client.bot
+
         await user.send_message("Hello bot")
         assert user.has_received_message_containing("Популярность")
 
