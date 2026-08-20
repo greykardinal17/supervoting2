@@ -77,6 +77,9 @@ class TestBotHandlers(AsyncBotTestMixin):
 
     async def test_regular_message(self):
         """Test regular message handler."""
+        # Ensure the module-level bot used in handlers points to the test client's bot
+        import pythonProject1.bot as bot_module
+
         user = self.client.create_user()
         await user.send_message("Hello bot")
         assert user.has_received_message_containing("Популярность")
