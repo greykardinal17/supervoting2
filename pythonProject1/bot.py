@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Dict, List, Optional, Tuple, Any
 
 from pythonProject1 import config
 from pythonProject1.handlers.control_commands import router, options_4
@@ -24,18 +25,18 @@ from pythonProject1.my_types import AnalysisResult
 from pythonProject1.utils.usefull_utils import generate_test_content_message, analysis_message_and_rating_calculation
 from pythonProject1.handlers import control_commands
 
-summaru : list = ["Анкета"]
+summaru: List[str] = ["Анкета"]
 
 # questionnaire_eval: dict = {'like': 0,
 #                             'super_like': 0,
 #                             # 'Wish': 0
 #                             }
 
-dictionary_storing_message_ratings: dict = {}
+dictionary_storing_message_ratings: Dict[str, Dict[str, int]] = {}
 
 # Здесь хранятся пользовательские данные.
 # Т.к. это словарь в памяти, то при перезапуске он очистится
-dictionary_storing_user_ratings = {}
+dictionary_storing_user_ratings: Dict[int, Dict[str, Dict[str, int]]] = {}
 
 like_maximum: int = 93
 super_like_maximum: int = 33
@@ -43,7 +44,7 @@ super_like_maximum: int = 33
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
-bot = Bot(
+bot: Bot = Bot(
     token=config.token,
     default=DefaultBotProperties(
         parse_mode=ParseMode.HTML,
@@ -57,14 +58,15 @@ def setup_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
     dispatcher.include_router(router)
 
 
-async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
-                                                     like_value,
-                                                     super_like_value,
-                                                     message_text_value='test_text',
-                                                     info_line_value='',
-                                                     from_user_first_name_value='',
-                                                     user_reputation=50
-                                                     ):
+async def add_bottom_bar_encourages_clicking_buttons(
+    mesage_id_value: str,
+    like_value: int,
+    super_like_value: int,
+    message_text_value: str = 'test_text',
+    info_line_value: str = '',
+    from_user_first_name_value: str = '',
+    user_reputation: int = 50
+) -> str:
 
     # global questionnaire_eval
     global dictionary_storing_message_ratings
@@ -72,7 +74,7 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
 
     integral_grade: float = round(like_value * 0.0003 * 10 +
                                   super_like_value * 0.7 * 10
-                                    ,4)
+                                    , 4)
 
     print('integral_grade is', integral_grade)
 
@@ -96,7 +98,7 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
                                ' Благодаря нему увеличена популярность анкеты! ' + info_line_value
                                )
 
-    content = Text(
+    content: Text = Text(
         as_line('_________________'),
         as_line(Pre(Bold(info_line_value))),
         as_line('Популярность',
@@ -135,9 +137,9 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
         #         ),
         #     ),
         # ),
-        as_line(' Отдай симпатию ❣',like_value),
+        as_line(' Отдай симпатию ❣', like_value),
         as_line(' ⁸¹²⁰⁹⁷⁹'),
-        as_line(' Отдай супер симпатию ❤',super_like_value),
+        as_line(' Отдай супер симпатию ❤', super_like_value),
         as_line(' ¹²⁹⁰⁹⁸⁷'),
         # TextLink,TextMention,Code,Pre
         # as_line (Code(info_line_value)),
@@ -174,11 +176,13 @@ async def add_bottom_bar_encourages_clicking_buttons(mesage_id_value,
 # async def photo_handler_message(message: types.Message):
 #     """Handle incoming photo messages using PhotoHandler."""
 #     # await photo_handler.from_photo_add_bottom_and_buttons(message)
-async def add_bottom_and_buttons_from_photo(message: types.Message,
-                                            from_user_id_value: int = None,
-                                            origin_message_id_value: str = None,
-                                            from_user_first_name_value='',
-                                            local_dictionary_storing_user_ratings=None):
+async def add_bottom_and_buttons_from_photo(
+    message: types.Message,
+    from_user_id_value: Optional[int] = None,
+    origin_message_id_value: Optional[str] = None,
+    from_user_first_name_value: str = '',
+    local_dictionary_storing_user_ratings: Optional[Dict] = None
+) -> None:
 
     # builder, origin_message_id = await analysis_message_and_rating_calculation(from_user_id_value,
     #                                                                            message,
@@ -187,7 +191,7 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
 
     global dictionary_storing_message_ratings
 
-    result : AnalysisResult
+    result: AnalysisResult
 
     (result,
      builder,
@@ -207,24 +211,24 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
     # print('Position _ ', message.caption.find('_________________'))
 
     # Normalize caption to avoid AttributeError when it's None
-    caption = getattr(message, 'caption', None) or ""
+    caption: str = getattr(message, 'caption', None) or ""
     try:
         print('Position _ ', caption.find('_________________'))
     except Exception:
         print('Position check failed for caption')
 
-    image_url = 'https://ravagaren.wordpress.com/wp-content/uploads/2023/03/photo_2023-08-19_11-36-11.jpg?w=640'
+    image_url: str = 'https://ravagaren.wordpress.com/wp-content/uploads/2023/03/photo_2023-08-19_11-36-11.jpg?w=640'
 
     content = await generate_test_content_message(image_url, caption)
 
-    print('content - ', content.as_html() )
+    print('content - ', content.as_html())
 
 
     # if content.as_html().find('_________________') == -1:
     if '_________________' not in content.as_html():
         # content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html(), )
 
-        content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+        content_text: str = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
                                                                         like_value,
                                                                         super_like_value,
                                                                         content.as_html()
@@ -242,11 +246,13 @@ async def add_bottom_and_buttons_from_photo(message: types.Message,
 
 
 @router.message(F.text)
-async def add_bottom_and_buttons_from_text(message: types.Message,
-                                           from_user_id_value: int = None,
-                                           origin_message_id_value: str = None,
-                                           from_user_first_name_value='',
-                                           local_dictionary_storing_user_ratings=None):
+async def add_bottom_and_buttons_from_text(
+    message: types.Message,
+    from_user_id_value: Optional[int] = None,
+    origin_message_id_value: Optional[str] = None,
+    from_user_first_name_value: str = '',
+    local_dictionary_storing_user_ratings: Optional[Dict] = None
+) -> None:
 
 
     global summaru
@@ -271,8 +277,8 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
     super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
 
     # Normalize text/html_text to avoid AttributeError when they are None
-    text = getattr(message, 'text', None) or ""
-    html_text = getattr(message, 'html_text', None) or ""
+    text: str = getattr(message, 'text', None) or ""
+    html_text: str = getattr(message, 'html_text', None) or ""
 
     try:
         print('Position _ ', text.find('_________________'))
@@ -284,7 +290,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
     image_anket_url: str = summaru[0]
 
-    print ('image_anket_url', image_anket_url)
+    print('image_anket_url', image_anket_url)
 
     content = await generate_test_content_message(image_anket_url, text)
 
@@ -292,7 +298,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
     if '_________________' not in content.as_html():
 
-        content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+        content_text: str = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
                                                                         like_value,
                                                                         super_like_value,
                                                                         content.as_html()
@@ -311,14 +317,14 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
         if (html_text.find('Рейтинг анкеты(0.0)') == -1
                                                  and like_value == 0
-                                           and super_like_value == 0) :
+                                           and super_like_value == 0):
 
             print('Нашли готовую интегральную оценку')
-            like_value, super_like_value = await like_counter(origin_message_id,html_text)
+            like_value, super_like_value = await like_counter(origin_message_id, html_text)
             # print()
 
         # safe slicing even if marker not found (html_text.find returns -1 handled above)
-        idx = html_text.find('_________________')
+        idx: int = html_text.find('_________________')
         common_text: str = html_text[0:idx] if idx != -1 else html_text
         print('common_text - ', common_text)
 
@@ -326,8 +332,8 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
                                                                        like_value,
                                                                        super_like_value,
                                                                        common_text,
-                                                                       from_user_first_name_value = from_user_first_name_value,
-                                                                       user_reputation= 43
+                                                                       from_user_first_name_value=from_user_first_name_value,
+                                                                       user_reputation=43
                                                                        )
 
         print('common_text -', common_text)
@@ -343,7 +349,7 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
         )
 
     print('Изменяем лайк и суперлайк')
-    print('like_value - ',like_value)
+    print('like_value - ', like_value)
     print('super_like_value - ', super_like_value)
 
     dictionary_storing_message_ratings[origin_message_id]["like"] = like_value
@@ -368,13 +374,13 @@ async def add_bottom_and_buttons_from_text(message: types.Message,
 
 
 @router.callback_query(F.data.startswith("✅"))
-async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
+async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
     global dictionary_storing_user_ratings
     global array_of_questionnaire_evaluation
 
     print('callback.from_user.first_name - ', callback.from_user.first_name)
     print('callback.data - ', callback.data)
-    action = callback.data.split(":")[0]
+    action: str = callback.data.split(":")[0]
     print('action - ', action)
 
     questionnaire_message_id: str = str(callback.data.split(":")[1])
@@ -398,7 +404,7 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     print('user_ratings_dict before check -', dictionary_storing_user_ratings)
 
     if dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id] is None:
-        dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id] =  \
+        dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id] = \
             {
                     'like': 0,
                     'super_like': 0,
@@ -417,11 +423,11 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
     print('user_ratings_dict -', dictionary_storing_user_ratings)
 
-    like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['like']
-    super_like_value: str = dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like']
+    like_value: int = dictionary_storing_message_ratings[str(questionnaire_message_id)]['like']
+    super_like_value: int = dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like']
 
     # Normalize callback message html_text to avoid AttributeError when it's None
-    cb_html = getattr(callback.message, 'html_text', None) or ""
+    cb_html: str = getattr(callback.message, 'html_text', None) or ""
 
     if (cb_html.find('Рейтинг анкеты(0.0)') == -1
             and like_value == 0
@@ -485,9 +491,9 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery):
     #                                                str(questionnaire_message_id))
 
 
-async def main():
+async def main() -> None:
     """Start the bot and polling for updates."""
-    dispatcher = Dispatcher()
+    dispatcher: Dispatcher = Dispatcher()
     setup_dispatcher(bot, dispatcher)
 
     try:
