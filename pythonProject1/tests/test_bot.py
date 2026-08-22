@@ -7,7 +7,7 @@ from aiogram.types import Message, Chat, PhotoSize, Update
 
 from aiogram_test_framework import AsyncBotTestMixin, TestClient
 
-from pythonProject1.bot import setup_dispatcher, add_bottom_and_buttons_from_photo, add_bottom_and_buttons_from_text
+from bot import setup_dispatcher, add_bottom_and_buttons_from_photo, add_bottom_and_buttons_from_text
 
 
 def create_test_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
@@ -78,7 +78,7 @@ class TestBotHandlers(AsyncBotTestMixin):
     async def test_regular_message(self):
         """Test regular message handler."""
         # Ensure the module-level bot used in handlers points to the test client's bot
-        import pythonProject1.bot as bot_module
+        import bot as bot_module
 
         user = self.client.create_user()
         # Replace the real bot with the test client's bot so bot.send_message() uses the test framework
@@ -248,7 +248,7 @@ class TestBotHandlers(AsyncBotTestMixin):
 
     # async def test_photo_handler_with_caption_none(self):
     #     """Ensure handler does not crash when message.caption is None and call real helpers."""
-    #     from pythonProject1 import bot as bot_module
+    #     from  import bot as bot_module
     #
     #     # reset globals to avoid cross-test pollution
     #     bot_module.dictionary_storing_message_ratings.clear()
@@ -287,7 +287,7 @@ class TestBotHandlers(AsyncBotTestMixin):
 
     # async def test_text_handler_with_text_and_html_none(self):
     #     """Ensure text handler does not crash when text and html_text are None and call real helpers."""
-    #     from pythonProject1 import bot as bot_module
+    #     from  import bot as bot_module
     #
     #     # reset globals to avoid cross-test pollution
     #     bot_module.dictionary_storing_message_ratings.clear()

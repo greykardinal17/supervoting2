@@ -2,12 +2,14 @@ import asyncio
 import logging
 from typing import Dict, List, Optional, Tuple, Any
 
-from pythonProject1 import config
-from pythonProject1.handlers.control_commands import router, options_4
+# from  import config
+import config
 
-from pythonProject1.refine_form_text import refine_form_text
+from handlers.control_commands import router, options_4
 
-from pythonProject1.like_counter import like_counter
+from refine_form_text import refine_form_text
+
+from like_counter import like_counter
 
 # новый импорт
 from aiogram import F
@@ -21,9 +23,9 @@ from aiogram.enums import ParseMode
 from aiogram.utils.formatting import (Pre)
 from aiogram.utils.formatting import Text, as_line, Bold
 
-from pythonProject1.my_types import AnalysisResult
-from pythonProject1.utils.usefull_utils import generate_test_content_message, analysis_message_and_rating_calculation
-from pythonProject1.handlers import control_commands
+from my_types import AnalysisResult
+from utils.usefull_utils import generate_test_content_message, analysis_message_and_rating_calculation
+from handlers import control_commands
 
 summaru: List[str] = ["Анкета"]
 
@@ -168,7 +170,7 @@ async def add_bottom_bar_encourages_clicking_buttons(
 #         reply_markup=get_keyboard()
 #     )
 
-# from pythonProject1.handlers.photo_handler import PhotoHandler
+# from handlers.photo_handler import PhotoHandler
 
 # photo_handler = PhotoHandler(options_4=options_4)
 

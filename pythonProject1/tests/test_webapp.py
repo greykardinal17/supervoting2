@@ -1,9 +1,9 @@
 # tests/test_webapp.py
-from pythonProject1.archive.webapp import get_title
+from archive.webapp import get_title
 
 def test_get_title_ok(mocker):
     # Патчим "там, где используется": webapp.requests.get
-    mock_get = mocker.patch("pythonProject1.webapp.requests.get")
+    mock_get = mocker.patch("webapp.requests.get")
 
     # Настраиваем фейковый ответ
     mock_resp = mocker.Mock()

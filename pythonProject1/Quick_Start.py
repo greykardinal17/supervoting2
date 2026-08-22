@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram_test_framework import AsyncBotTestMixin
-from pythonProject1 import config
+from  import config
 
 def setup_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
     """Configure dispatcher with middlewares and handlers."""

@@ -75,8 +75,8 @@ from typing import Any
 
 from aiogram.utils.formatting import Text, as_line, TextLink, Url, HashTag, ExpandableBlockQuote, Bold
 
-from pythonProject1.keyboards.keyboard_builder import keyborad_builder
-from pythonProject1.my_types import AnalysisResult
+from keyboards.keyboard_builder import keyborad_builder
+from my_types import AnalysisResult
 
 
 # ,questionnaire_eval,dict_of_questionnaire_evaluation
@@ -162,7 +162,7 @@ async def analysis_message_and_rating_calculation(from_user_id_value,
 
     # global user_ratings_dict
     # global questionnaire_eval
-    from pythonProject1.bot import dictionary_storing_message_ratings
+    from bot import dictionary_storing_message_ratings
     global dictionary_storing_message_ratings
 
     from_user_id: int

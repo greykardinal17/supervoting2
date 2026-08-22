@@ -2,14 +2,14 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from pythonProject1.handlers.control_commands import generate_test_message, options_4
+from handlers.control_commands import generate_test_message, options_4
 
 
 # from aiogram.types import LinkPreviewOptions
 
 
 @pytest.mark.asyncio
-@patch("pythonProject1.bot.generate_test_content_message", new_callable=AsyncMock)
+@patch("bot.generate_test_content_message", new_callable=AsyncMock)
 async def test_generate_test_message_stub(mock_generate):
 
     global options_4

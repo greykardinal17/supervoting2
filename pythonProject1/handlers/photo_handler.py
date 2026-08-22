@@ -1,7 +1,7 @@
 from aiogram import types
 
-from pythonProject1.bot import add_bottom_bar_encourages_clicking_buttons
-from pythonProject1.utils.usefull_utils import generate_test_content_message, analysis_message_and_rating_calculation
+from bot import add_bottom_bar_encourages_clicking_buttons
+from utils.usefull_utils import generate_test_content_message, analysis_message_and_rating_calculation
 
 
 class PhotoHandler:
@@ -9,8 +9,8 @@ class PhotoHandler:
 
     def __init__(self, options_4):
         self.options_4 = options_4
-        # from pythonProject1.bot import technical_processing_form, add_bottom
-        # from pythonProject1.utils.usefull_utils import generate_test_content_message
+        # from bot import technical_processing_form, add_bottom
+        # from utils.usefull_utils import generate_test_content_message
 
     async def from_photo_add_bottom_and_buttons(
         self,
