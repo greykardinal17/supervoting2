@@ -29,12 +29,22 @@ from handlers import control_commands
 
 summaru: List[str] = ["Анкета"]
 
+# questionnaire_eval: dict = {'like': 0,
+#                             'super_like': 0,
+#                             # 'Wish': 0
+#                             }
+
+dictionary_storing_message_ratings: Dict[str, Dict[str, int]] = {}
+
+# Здесь хранятся пользовательские данные.
+# Т.к. это словарь в памяти, то при перезапуске он очистится
+dictionary_storing_user_ratings: Dict[int, Dict[str, Dict[str, int]]] = {}
+
 like_maximum: int = 93
 super_like_maximum: int = 33
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
-
 # Объект бота
 bot: Bot = Bot(
     token=config.token,
@@ -42,6 +52,7 @@ bot: Bot = Bot(
         parse_mode=ParseMode.HTML,
     )
 )
+# Диспетчер
 
 
 def setup_dispatcher(bot: Bot, dispatcher: Dispatcher) -> None:
@@ -58,6 +69,10 @@ async def add_bottom_bar_encourages_clicking_buttons(
     from_user_first_name_value: str = '',
     user_reputation: int = 50
 ) -> str:
+
+    # global questionnaire_eval
+    global dictionary_storing_message_ratings
+    global like_maximum
 
     integral_grade: float = round(like_value * 0.0003 * 10 +
                                   super_like_value * 0.7 * 10
@@ -76,7 +91,7 @@ async def add_bottom_bar_encourages_clicking_buttons(
 
             info_line_value = ('Поздравляем пользователя '+ from_user_first_name_value +
                                'с репутацией = ' + str(user_reputation) +
-                           ' Его голос увеличил популярность анкеты и ввел его в список претендентов на общения! '
+                           ' Его голос увеличил популярность анкеты и ввел его в список претендентов на общение! '
                                + info_line_value
                            )
         else:
@@ -93,83 +108,207 @@ async def add_bottom_bar_encourages_clicking_buttons(
                 f"({integral_grade}"
                 f")"
                 ),
+        # as_line
+        # (
+        #     as_list
+        #         (
+        #         as_marked_section
+        #             (
+        #             # Bold(" Оцени анкету"),
+        #             #print(f"{r2} ({r2:.2%})")
+        #
+        #             # as_key_value("Красота 💟",
+        #             #         f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"/\
+        #             #                     like_maximum:.2%}"
+        #             #               f")"
+        #             #              ),
+        #             as_key_value(" Интегральная оценка 💟",
+        #                          f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"] /
+        #                              like_maximum:.2%}"
+        #                          f")"
+        #                          ),
+        #             # as_key_value("Нужность практик 👩",
+        #             #       f"({dict_of_questionnaire_evaluation[mesage_id_value]["super_like"] /
+        #             #           super_like_maximum:.2%}"
+        #             #       f")"
+        #             #       ),
+        #             # as_key_value("Хочу быть рядом 🔥",
+        #             #              str(dict_of_questionnaire_evaluation[mesage_id_value]["Wish"])
+        #             #              ),
+        #             marker=" ",
+        #         ),
+        #     ),
+        # ),
         as_line(' Отдай симпатию ❣', like_value),
         as_line(' ⁸¹²⁰⁹⁷⁹'),
         as_line(' Отдай супер симпатию ❤', super_like_value),
         as_line(' ¹²⁹⁰⁹⁸⁷'),
+        # TextLink,TextMention,Code,Pre
+        # as_line (Code(info_line_value)),
+
     )
     return_value: str = message_text_value + content.as_html()
 
     return return_value
 
 
-async def process_message(
+# def get_keyboard():
+#     buttons = [
+#         [
+#             types.InlineKeyboardButton(text="-1", callback_data="num_decr"),
+#             types.InlineKeyboardButton(text="+1", callback_data="num_incr")
+#         ],
+#         [types.InlineKeyboardButton(text="Подтвердить", callback_data="num_finish")]
+#     ]
+#     keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+#     return keyboard
+
+
+# async def update_grade_text(message: types.Message, new_value: int):
+#     await message.edit_text(
+#         f"Укажите число: {new_value}",
+#         reply_markup=get_keyboard()
+#     )
+
+# from handlers.photo_handler import PhotoHandler
+
+# photo_handler = PhotoHandler(options_4=options_4)
+
+@router.message(F.content_type == ContentType.PHOTO)
+# async def photo_handler_message(message: types.Message):
+#     """Handle incoming photo messages using PhotoHandler."""
+#     # await photo_handler.from_photo_add_bottom_and_buttons(message)
+async def add_bottom_and_buttons_from_photo(
     message: types.Message,
-    dictionary_storing_message_ratings: Dict[str, Dict[str, int]],
     from_user_id_value: Optional[int] = None,
     origin_message_id_value: Optional[str] = None,
     from_user_first_name_value: str = '',
-    local_dictionary_storing_user_ratings: Optional[Dict] = None,
-    content_source: str = 'text'
-) -> Tuple[Dict[str, Dict[str, int]], Optional[Dict]]:
-    """
-    Unified handler for processing both text and photo messages.
-    Returns updated dictionaries.
-    
-    Args:
-        message: The incoming message
-        dictionary_storing_message_ratings: Message ratings dictionary
-        from_user_id_value: User ID
-        origin_message_id_value: Original message ID
-        from_user_first_name_value: User's first name
-        local_dictionary_storing_user_ratings: User ratings dictionary
-        content_source: Either 'text' or 'photo'
-    """
-    global summaru
+    local_dictionary_storing_user_ratings: Optional[Dict] = None
+) -> None:
 
-    print(f'Processing {content_source} message')
+    # builder, origin_message_id = await analysis_message_and_rating_calculation(from_user_id_value,
+    #                                                                            message,
+    #                                                                            origin_message_id_value
+    #                                                                            )
+
+    global dictionary_storing_message_ratings
+
+    result: AnalysisResult
 
     (result,
      builder,
      origin_message_id,
      local_dictionary_storing_user_ratings,
-     dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(
-        from_user_id_value,
-        message,
-        origin_message_id_value,
-        local_dictionary_storing_user_ratings,
-        dictionary_storing_message_ratings
-    )
+     dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
+                                                                                         message,
+                                                                                         origin_message_id_value,
+                                                                                         local_dictionary_storing_user_ratings,
+                                                                                         dictionary_storing_message_ratings
+                                                                                         )
+    like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
+    super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
+
+    print('We are handling photo')
+
+    # print('Position _ ', message.caption.find('_________________'))
+
+    # Normalize caption to avoid AttributeError when it's None
+    caption: str = getattr(message, 'caption', None) or ""
+    try:
+        print('Position _ ', caption.find('_________________'))
+    except Exception:
+        print('Position check failed for caption')
+
+    image_url: str = 'https://ravagaren.wordpress.com/wp-content/uploads/2023/03/photo_2023-08-19_11-36-11.jpg?w=640'
+
+    content = await generate_test_content_message(image_url, caption)
+
+    print('content - ', content.as_html())
+
+
+    # if content.as_html().find('_________________') == -1:
+    if '_________________' not in content.as_html():
+        # content_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id, content.as_html(), )
+
+        content_text: str = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+                                                                        like_value,
+                                                                        super_like_value,
+                                                                        content.as_html()
+                                                                        )
+
+        print('content_text is', content_text)
+
+        # Use bot.send_message instead of message.answer so the handler can be called directly in tests
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=content_text,
+            link_preview_options=options_4,
+            reply_markup=builder.as_markup(),
+        )
+
+
+@router.message(F.text)
+async def add_bottom_and_buttons_from_text(
+    message: types.Message,
+    from_user_id_value: Optional[int] = None,
+    origin_message_id_value: Optional[str] = None,
+    from_user_first_name_value: str = '',
+    local_dictionary_storing_user_ratings: Optional[Dict] = None
+) -> None:
+
+
+    global summaru
+    global dictionary_storing_user_ratings
+    global dictionary_storing_message_ratings
+
+
+    print('from_user_first_name_value -', from_user_first_name_value)
+
+    (result,
+     builder,
+     origin_message_id,
+     local_dictionary_storing_user_ratings,
+     dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
+                                                                                         message,
+                                                                                         origin_message_id_value,
+                                                                                         local_dictionary_storing_user_ratings,
+                                                                                         dictionary_storing_message_ratings
+                                                                                         )
 
     like_value: int = dictionary_storing_message_ratings[origin_message_id]["like"]
     super_like_value: int = dictionary_storing_message_ratings[origin_message_id]["super_like"]
 
-    # Get content based on source
-    if content_source == 'photo':
-        caption: str = getattr(message, 'caption', None) or ""
-        image_url: str = 'https://ravagaren.wordpress.com/wp-content/uploads/2023/03/photo_2023-08-19_11-36-11.jpg?w=640'
-        content = await generate_test_content_message(image_url, caption)
-    else:  # text
-        text: str = getattr(message, 'text', None) or ""
-        summaru.append(text)
-        summaru_refined = refine_form_text(summaru)
-        image_anket_url: str = summaru_refined[0]
-        print('image_anket_url', image_anket_url)
-        content = await generate_test_content_message(image_anket_url, text)
+    # Normalize text/html_text to avoid AttributeError when they are None
+    text: str = getattr(message, 'text', None) or ""
+    html_text: str = getattr(message, 'html_text', None) or ""
+
+    try:
+        print('Position _ ', text.find('_________________'))
+    except Exception:
+        print('Position check failed for text')
+
+    summaru.append(text)
+    summaru = refine_form_text(summaru)
+
+    image_anket_url: str = summaru[0]
+
+    print('image_anket_url', image_anket_url)
+
+    content = await generate_test_content_message(image_anket_url, text)
 
     print('content - ', content.as_html())
 
     if '_________________' not in content.as_html():
-        # New message - add bottom bar and send
-        content_text: str = await add_bottom_bar_encourages_clicking_buttons(
-            origin_message_id,
-            like_value,
-            super_like_value,
-            content.as_html()
-        )
+
+        content_text: str = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+                                                                        like_value,
+                                                                        super_like_value,
+                                                                        content.as_html()
+                                                                        )
 
         print('content_text is', content_text)
 
+        # Use bot.send_message instead of message.answer so tests can call handler directly
         await bot.send_message(
             chat_id=message.chat.id,
             text=content_text,
@@ -177,31 +316,32 @@ async def process_message(
             reply_markup=builder.as_markup(),
         )
     else:
-        # Message already has separator - update existing message
-        html_text: str = getattr(message, 'html_text', None) or ""
 
         if (html_text.find('Рейтинг анкеты(0.0)') == -1
-                and like_value == 0
-                and super_like_value == 0):
+                                                 and like_value == 0
+                                           and super_like_value == 0):
+
             print('Нашли готовую интегральную оценку')
             like_value, super_like_value = await like_counter(origin_message_id, html_text)
+            # print()
 
-        # Extract text before separator
+        # safe slicing even if marker not found (html_text.find returns -1 handled above)
         idx: int = html_text.find('_________________')
         common_text: str = html_text[0:idx] if idx != -1 else html_text
         print('common_text - ', common_text)
 
-        common_text = await add_bottom_bar_encourages_clicking_buttons(
-            origin_message_id,
-            like_value,
-            super_like_value,
-            common_text,
-            from_user_first_name_value=from_user_first_name_value,
-            user_reputation=43
-        )
+        common_text = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
+                                                                       like_value,
+                                                                       super_like_value,
+                                                                       common_text,
+                                                                       from_user_first_name_value=from_user_first_name_value,
+                                                                       user_reputation=43
+                                                                       )
 
         print('common_text -', common_text)
 
+
+        # Use bot.edit_message_text instead of message.edit_text so handler works in tests
         await bot.edit_message_text(
             text=common_text,
             chat_id=message.chat.id,
@@ -217,59 +357,28 @@ async def process_message(
     dictionary_storing_message_ratings[origin_message_id]["like"] = like_value
     dictionary_storing_message_ratings[origin_message_id]["super_like"] = super_like_value
 
-    return dictionary_storing_message_ratings, local_dictionary_storing_user_ratings
+    # await message.delete()
 
 
-@router.message(F.content_type == ContentType.PHOTO)
-async def add_bottom_and_buttons_from_photo(
-    message: types.Message,
-    from_user_id_value: Optional[int] = None,
-    origin_message_id_value: Optional[str] = None,
-    from_user_first_name_value: str = '',
-    local_dictionary_storing_user_ratings: Optional[Dict] = None
-) -> None:
-    """Handle incoming photo messages."""
-    # Get global state
-    global dictionary_storing_message_ratings
-    
-    dictionary_storing_message_ratings, local_dictionary_storing_user_ratings = await process_message(
-        message,
-        dictionary_storing_message_ratings,
-        from_user_id_value,
-        origin_message_id_value,
-        from_user_first_name_value,
-        local_dictionary_storing_user_ratings,
-        content_source='photo'
-    )
-
-
-@router.message(F.text)
-async def add_bottom_and_buttons_from_text(
-    message: types.Message,
-    from_user_id_value: Optional[int] = None,
-    origin_message_id_value: Optional[str] = None,
-    from_user_first_name_value: str = '',
-    local_dictionary_storing_user_ratings: Optional[Dict] = None
-) -> None:
-    """Handle incoming text messages."""
-    # Get global state
-    global dictionary_storing_message_ratings
-    
-    dictionary_storing_message_ratings, local_dictionary_storing_user_ratings = await process_message(
-        message,
-        dictionary_storing_message_ratings,
-        from_user_id_value,
-        origin_message_id_value,
-        from_user_first_name_value,
-        local_dictionary_storing_user_ratings,
-        content_source='text'
-    )
+# async def like_counter(origin_message_id, message_html_value):
+#
+#     # global dict_of_questionnaire_evaluation
+#
+#     message_html : str = message_html_value
+#
+#     like_value = 5
+#     super_like_value = 3
+#
+#     # dict_of_questionnaire_evaluation[origin_message_id]["like"] = like_value
+#     # dict_of_questionnaire_evaluation[origin_message_id]["super_like"] = super_like_value
+#
+#     return like_value, super_like_value
 
 
 @router.callback_query(F.data.startswith("✅"))
 async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
     global dictionary_storing_user_ratings
-    global dictionary_storing_message_ratings
+    global array_of_questionnaire_evaluation
 
     print('callback.from_user.first_name - ', callback.from_user.first_name)
     print('callback.data - ', callback.data)
@@ -309,7 +418,9 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
             {
                 'like': 0,
                 'super_like': 0,
+                # 'Wish': 0
             }
+
 
     print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
     print('user_ratings_dict -', dictionary_storing_user_ratings)
@@ -329,6 +440,7 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
         dictionary_storing_message_ratings[str(questionnaire_message_id)]['like'] = like_value
         dictionary_storing_message_ratings[str(questionnaire_message_id)]['super_like'] = super_like_value
 
+
     if action == "✅like":
 
         print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
@@ -337,15 +449,11 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
         print('in callback user_data -', dictionary_storing_user_ratings)
 
         await callback.answer()
-        dictionary_storing_message_ratings, dictionary_storing_user_ratings = await process_message(
-            callback.message,
-            dictionary_storing_message_ratings,
-            callback.from_user.id,
-            questionnaire_message_id,
-            callback.from_user.first_name,
-            dictionary_storing_user_ratings,
-            content_source='text'
-        )
+        await add_bottom_and_buttons_from_text(callback.message,
+                                               callback.from_user.id,
+                                               str(questionnaire_message_id),
+                                               callback.from_user.first_name,
+                                               dictionary_storing_user_ratings)
 
     elif action == "✅super_like":
         print('dict_of_questionnaire_evaluation is', dictionary_storing_message_ratings)
@@ -363,15 +471,26 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
             print('in callback user_data -', dictionary_storing_user_ratings)
 
             await callback.answer()
-            dictionary_storing_message_ratings, dictionary_storing_user_ratings = await process_message(
-                callback.message,
-                dictionary_storing_message_ratings,
-                callback.from_user.id,
-                questionnaire_message_id,
-                callback.from_user.first_name,
-                dictionary_storing_user_ratings,
-                content_source='text'
-            )
+            await add_bottom_and_buttons_from_text(callback.message,
+                                                   callback.from_user.id,
+                                                   str(questionnaire_message_id),
+                                                   callback.from_user.first_name,
+                                                   dictionary_storing_user_ratings)
+
+    # elif action == "✅Желание":
+    #     if user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] > 0:
+    #         await callback.answer(text="Голосовать можно один раз",
+    #                               show_alert=True
+    #                               )
+    #     else:
+    #         dict_of_questionnaire_evaluation[str(questionnaire_message_id)]['Wish'] += 1
+    #         print('dict_of_questionnaire_evaluation is', dict_of_questionnaire_evaluation)
+    #         user_ratings_dict[callback.from_user.id][questionnaire_message_id]['Wish'] += 1
+    #         print('in callback user_data -', user_ratings_dict)
+    #
+    #         await callback.answer()
+    #         await from_text_add_bottom_and_buttons(callback.message, callback.from_user.id,
+    #                                                str(questionnaire_message_id))
 
 
 async def main() -> None:
