@@ -27,7 +27,16 @@ from my_types import AnalysisResult
 from utils.usefull_utils import generate_test_content_message, analysis_message_and_rating_calculation
 from handlers import control_commands
 
-summaru: List[str] = ["Анкета"]
+# ============ Константы ============
+SEPARATOR = '_________________'
+INITIAL_RATING_TEXT = 'Рейтинг анкеты(0.0)'
+CALLBACK_LIKE_ACTION = '✅like'
+CALLBACK_SUPER_LIKE_ACTION = '✅super_like'
+ERROR_SUPER_LIKE_UNAVAILABLE = 'Супер симпатия пока недоступна'
+INITIAL_FORM_NAME = 'Анкета'
+# ===================================
+
+summaru: List[str] = [INITIAL_FORM_NAME]
 
 # questionnaire_eval: dict = {'like': 0,
 #                             'super_like': 0,
@@ -129,13 +138,44 @@ async def add_bottom_bar_encourages_clicking_buttons(
                                    )
 
         content: Text = Text(
-            as_line('_________________'),
+            as_line(SEPARATOR),
             as_line(Pre(Bold(info_line_value))),
             as_line('Популярность',
                     # f"({integral_grade:.19}"
                     f"({integral_grade}"
                     f")"
                     ),
+            # as_line
+            # (
+            #     as_list
+            #         (
+            #         as_marked_section
+            #             (
+            #             # Bold(" Оцени анкету"),
+            #             #print(f"{r2} ({r2:.2%})")
+            #
+            #             # as_key_value("Красота 💟",
+            #             #         f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"/\
+            #             #                     like_maximum:.2%}"
+            #             #               f")"
+            #             #              ),
+            #             as_key_value(" Интегральная оценка 💟",
+            #                          f"({dict_of_questionnaire_evaluation[mesage_id_value]["like"] /
+            #                              like_maximum:.2%}"
+            #                          f")"
+            #                          ),
+            #             # as_key_value("Нужность практик 👩",
+            #             #       f"({dict_of_questionnaire_evaluation[mesage_id_value]["super_like"] /
+            #             #           super_like_maximum:.2%}"
+            #             #       f")"
+            #             #       ),
+            #             # as_key_value("Хочу быть рядом 🔥",
+            #             #              str(dict_of_questionnaire_evaluation[mesage_id_value]["Wish"])
+            #             #              ),
+            #             marker=" ",
+            #         ),
+            #     ),
+            # ),
             as_line(' Отдай симпатию ❣', like_value),
             as_line(' ⁸¹²⁰⁹⁷⁹'),
             as_line(' Отдай супер симпатию ❤', super_like_value),
@@ -188,7 +228,7 @@ async def add_bottom_and_buttons_from_photo(
         # Normalize caption to avoid AttributeError when it's None
         caption: str = getattr(message, 'caption', None) or ""
         try:
-            logger.info(f'Position _ {caption.find("_________________")}')
+            logger.info(f'Position _ {caption.find(SEPARATOR)}')
         except Exception as e:
             logger.error(f'Position check failed for caption: {e}')
 
@@ -198,7 +238,7 @@ async def add_bottom_and_buttons_from_photo(
 
         logger.info(f'content - {content.as_html()}')
 
-        if '_________________' not in content.as_html():
+        if SEPARATOR not in content.as_html():
             content_text: str = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
                                                                             like_value,
                                                                             super_like_value,
@@ -263,7 +303,7 @@ async def add_bottom_and_buttons_from_text(
         html_text: str = getattr(message, 'html_text', None) or ""
 
         try:
-            logger.info(f'Position _ {text.find("_________________")}')
+            logger.info(f'Position _ {text.find(SEPARATOR)}')
         except Exception as e:
             logger.error(f'Position check failed for text: {e}')
 
@@ -282,7 +322,7 @@ async def add_bottom_and_buttons_from_text(
 
         logger.info(f'content - {content.as_html()}')
 
-        if '_________________' not in content.as_html():
+        if SEPARATOR not in content.as_html():
 
             content_text: str = await add_bottom_bar_encourages_clicking_buttons(origin_message_id,
                                                                             like_value,
@@ -301,16 +341,16 @@ async def add_bottom_and_buttons_from_text(
             )
         else:
 
-            if (html_text.find('Рейтинг анкеты(0.0)') == -1
+            if (html_text.find(INITIAL_RATING_TEXT) == -1
                                                      and like_value == 0
-                                               and super_like_value == 0):
+                                                and super_like_value == 0):
 
                 logger.info('Нашли готовую интегральную оценку')
                 like_value, super_like_value = await like_counter(origin_message_id, html_text)
                 # print()
 
             # safe slicing even if marker not found (html_text.find returns -1 handled above)
-            idx: int = html_text.find('_________________')
+            idx: int = html_text.find(SEPARATOR)
             common_text: str = html_text[0:idx] if idx != -1 else html_text
             logger.info(f'common_text - {common_text}')
 
@@ -378,7 +418,7 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
         # Normalize callback message html_text to avoid AttributeError when it's None
         cb_html: str = getattr(callback.message, 'html_text', None) or ""
 
-        if (cb_html.find('Рейтинг анкеты(0.0)') == -1
+        if (cb_html.find(INITIAL_RATING_TEXT) == -1
                 and like_value == 0
                 and super_like_value == 0):
             logger.info('Нашли готовую интегральную оценку')
@@ -387,7 +427,7 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
             dictionary_storing_message_ratings[questionnaire_message_id]['like'] = like_value
             dictionary_storing_message_ratings[questionnaire_message_id]['super_like'] = super_like_value
 
-        if action == "✅like":
+        if action == CALLBACK_LIKE_ACTION:
 
             logger.info(f'dict_of_questionnaire_evaluation is {dictionary_storing_message_ratings}')
             dictionary_storing_message_ratings[questionnaire_message_id]['like'] += 1
@@ -401,13 +441,13 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
                                                    callback.from_user.first_name,
                                                    dictionary_storing_user_ratings)
 
-        elif action == "✅super_like":
+        elif action == CALLBACK_SUPER_LIKE_ACTION:
             logger.info(f'dict_of_questionnaire_evaluation is {dictionary_storing_message_ratings}')
             logger.info(f'user_ratings_dict[callback.from_user.id][questionnaire_message_id]["super_like"] is '
                   f'{dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]["super_like"]}'
                   )
             if dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['super_like'] > 0:
-                await callback.answer(text="Супер симпатия пока недоступна",
+                await callback.answer(text=ERROR_SUPER_LIKE_UNAVAILABLE,
                                       show_alert=True
                                       )
             else:
