@@ -158,8 +158,13 @@ async def analysis_message_and_rating_calculation(from_user_id_value,
                                                   message,
                                                   origin_message_id_value,
                                                   local_user_ratings_dict=None,
-                                                  local_dictionary_storing_message_ratings=None):
+                                                  local_dictionary_storing_message_ratings=None) -> AnalysisResult:
+    """
+    Analyze message and calculate rating.
 
+    Returns:
+        AnalysisResult: Contains builder, origin_message_id, local_user_ratings, and message_ratings
+    """
     # global user_ratings_dict
     # global questionnaire_eval
     from bot import dictionary_storing_message_ratings
@@ -202,7 +207,7 @@ async def analysis_message_and_rating_calculation(from_user_id_value,
     if local_user_ratings_dict[from_user_id][origin_message_id] is None:
         local_user_ratings_dict[from_user_id] = {origin_message_id: dict(like=0, super_like=0)}
 
-    print ('dictionary_storing_message_ratings ', local_dictionary_storing_message_ratings)
+    print('dictionary_storing_message_ratings ', local_dictionary_storing_message_ratings)
     print('origin_message_id ', origin_message_id)
     print("local_user_ratings_dict - ", local_user_ratings_dict)
 
@@ -217,23 +222,13 @@ async def analysis_message_and_rating_calculation(from_user_id_value,
     print("local_user_ratings_dict[from_user_id][origin_message_id].get('like') -",
           local_user_ratings_dict[from_user_id][origin_message_id].get('like'))
 
-    # user_ratings_dict = local_user_ratings_dict
-
     builder = await keyborad_builder(local_dictionary_storing_message_ratings[origin_message_id],
                                      origin_message_id
                                      )
-    # local_result : AnalysisResult = AnalysisResult ()
 
-    return (AnalysisResult(
+    return AnalysisResult(
         builder=builder,
         origin_message_id=origin_message_id,
         local_user_ratings=local_user_ratings_dict,
         message_ratings=local_dictionary_storing_message_ratings,
-    ),
-            builder,
-            origin_message_id,
-            local_user_ratings_dict,
-            local_dictionary_storing_message_ratings
     )
-
-    return local_result, builder, origin_message_id, local_user_ratings_dict,local_dictionary_storing_message_ratings

@@ -282,34 +282,28 @@ async def process_questionnaire_message(
 
 @router.message(F.content_type == ContentType.PHOTO)
 async def add_bottom_and_buttons_from_photo(
-    message: types.Message,
-    from_user_id_value: Optional[int] = None,
-    origin_message_id_value: Optional[str] = None,
-    from_user_first_name_value: str = '',
-    local_dictionary_storing_user_ratings: Optional[Dict] = None
+        message: types.Message,
+        from_user_id_value: Optional[int] = None,
+        origin_message_id_value: Optional[str] = None,
+        from_user_first_name_value: str = '',
+        local_dictionary_storing_user_ratings: Optional[Dict] = None
 ) -> None:
-
     global dictionary_storing_message_ratings
 
     try:
-        result: AnalysisResult
+        result: AnalysisResult = await analysis_message_and_rating_calculation(
+            from_user_id_value,
+            message,
+            origin_message_id_value,
+            local_dictionary_storing_user_ratings,
+            dictionary_storing_message_ratings
+        )
 
-        (result,
-         builder,
-         origin_message_id,
-         local_dictionary_storing_user_ratings,
-         dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
-                                                                                             message,
-                                                                                             origin_message_id_value,
-                                                                                             local_dictionary_storing_user_ratings,
-                                                                                             dictionary_storing_message_ratings
-                                                                                             )
-        
-        if not origin_message_id:
+        if not result.origin_message_id:
             logger.warning("origin_message_id is None in add_bottom_and_buttons_from_photo")
             return
 
-        message_rating = get_message_rating(origin_message_id)
+        message_rating = get_message_rating(result.origin_message_id)
         like_value: int = message_rating.get("like", 0)
         super_like_value: int = message_rating.get("super_like", 0)
 
@@ -326,16 +320,33 @@ async def add_bottom_and_buttons_from_photo(
 
         content = await generate_test_content_message(image_url, caption)
 
-        await process_questionnaire_message(
-            message,
-            content,
-            origin_message_id,
-            like_value,
-            super_like_value,
-            from_user_first_name_value,
-            from_user_id_value
-        )
-    
+        logger.info(f'content - {content.as_html()}')
+
+        if SEPARATOR not in content.as_html():
+            content_text: str = await add_bottom_bar_encourages_clicking_buttons(
+                result.origin_message_id,
+                like_value,
+                super_like_value,
+                content.as_html()
+            )
+
+            logger.info(f'content_text is {content_text}')
+
+            # Use bot.send_message instead of message.answer so the handler can be called directly in tests
+            try:
+                await bot.send_message(
+                    chat_id=message.chat.id,
+                    text=content_text,
+                    link_preview_options=options_4,
+                    reply_markup=result.builder.as_markup(),
+                )
+            except Exception as send_error:
+                logger.error(f"Failed to send message in add_bottom_and_buttons_from_photo: {send_error}",
+                             exc_info=True)
+
+        # Update global state from result
+        dictionary_storing_message_ratings.update(result.message_ratings)
+
     except Exception as e:
         logger.error(f"Error in add_bottom_and_buttons_from_photo: {e}", exc_info=True)
 
@@ -356,22 +367,19 @@ async def add_bottom_and_buttons_from_text(
     try:
         logger.info(f'from_user_first_name_value - {from_user_first_name_value}')
 
-        (result,
-         builder,
-         origin_message_id,
-         local_dictionary_storing_user_ratings,
-         dictionary_storing_message_ratings) = await analysis_message_and_rating_calculation(from_user_id_value,
-                                                                                             message,
-                                                                                             origin_message_id_value,
-                                                                                             local_dictionary_storing_user_ratings,
-                                                                                             dictionary_storing_message_ratings
-                                                                                             )
+        result: AnalysisResult = await analysis_message_and_rating_calculation(
+            from_user_id_value,
+            message,
+            origin_message_id_value,
+            local_dictionary_storing_user_ratings,
+            dictionary_storing_message_ratings
+        )
 
-        if not origin_message_id:
+        if not result.origin_message_id:
             logger.warning("origin_message_id is None in add_bottom_and_buttons_from_text")
             return
 
-        message_rating = get_message_rating(origin_message_id)
+        message_rating = get_message_rating(result.origin_message_id)
         like_value: int = message_rating.get("like", 0)
         super_like_value: int = message_rating.get("super_like", 0)
 
@@ -397,15 +405,72 @@ async def add_bottom_and_buttons_from_text(
 
         content = await generate_test_content_message(image_anket_url, text)
 
-        await process_questionnaire_message(
-            message,
-            content,
-            origin_message_id,
-            like_value,
-            super_like_value,
-            from_user_first_name_value,
-            from_user_id_value
-        )
+        logger.info(f'content - {content.as_html()}')
+
+        if SEPARATOR not in content.as_html():
+
+            content_text: str = await add_bottom_bar_encourages_clicking_buttons(
+                result.origin_message_id,
+                like_value,
+                super_like_value,
+                content.as_html()
+            )
+
+            logger.info(f'content_text is {content_text}')
+
+            # Use bot.send_message instead of message.answer so tests can call handler directly
+            try:
+                await bot.send_message(
+                    chat_id=message.chat.id,
+                    text=content_text,
+                    link_preview_options=options_4,
+                    reply_markup=result.builder.as_markup(),
+                )
+            except Exception as send_error:
+                logger.error(f"Failed to send message in add_bottom_and_buttons_from_text: {send_error}", exc_info=True)
+        else:
+
+            if (html_text.find(INITIAL_RATING_TEXT) == -1
+                                                     and like_value == 0
+                                                and super_like_value == 0):
+
+                logger.info('Нашли готовую интегральную оценку')
+                like_value, super_like_value = await like_counter(result.origin_message_id, html_text)
+                # print()
+
+            # safe slicing even if marker not found (html_text.find returns -1 handled above)
+            idx: int = html_text.find(SEPARATOR)
+            common_text: str = html_text[0:idx] if idx != -1 else html_text
+            logger.info(f'common_text - {common_text}')
+
+            common_text = await add_bottom_bar_encourages_clicking_buttons(
+                result.origin_message_id,
+                like_value,
+                super_like_value,
+                common_text,
+                from_user_first_name_value=from_user_first_name_value,
+                user_reputation=43
+            )
+
+            logger.info(f'common_text - {common_text}')
+            # Use bot.edit_message_text instead of message.edit_text so handler works in tests
+            try:
+                await bot.edit_message_text(
+                    text=common_text,
+                    chat_id=message.chat.id,
+                    message_id=message.message_id,
+                    link_preview_options=options_4,
+                    reply_markup=result.builder.as_markup(),
+                )
+            except Exception as edit_error:
+                logger.error(f"Failed to edit message in add_bottom_and_buttons_from_text: {edit_error}", exc_info=True)
+
+        logger.info('Изменяем лайк и суперлайк')
+        logger.info(f'like_value - {like_value}')
+        logger.info(f'super_like_value - {super_like_value}')
+
+        dictionary_storing_message_ratings[result.origin_message_id]["like"] = like_value
+        dictionary_storing_message_ratings[result.origin_message_id]["super_like"] = super_like_value
 
     except Exception as e:
         logger.error(f"Error in add_bottom_and_buttons_from_text: {e}", exc_info=True)
