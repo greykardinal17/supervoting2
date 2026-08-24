@@ -248,19 +248,18 @@ async def add_bottom_and_buttons_from_photo(
             logger.info(f'content_text is {content_text}')
 
             # Use bot.send_message instead of message.answer so the handler can be called directly in tests
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=content_text,
-                link_preview_options=options_4,
-                reply_markup=builder.as_markup(),
-            )
+            try:
+                await bot.send_message(
+                    chat_id=message.chat.id,
+                    text=content_text,
+                    link_preview_options=options_4,
+                    reply_markup=builder.as_markup(),
+                )
+            except Exception as send_error:
+                logger.error(f"Failed to send message in add_bottom_and_buttons_from_photo: {send_error}", exc_info=True)
     
     except Exception as e:
         logger.error(f"Error in add_bottom_and_buttons_from_photo: {e}", exc_info=True)
-        try:
-            await message.answer("Произошла ошибка при обработке фото")
-        except Exception as send_error:
-            logger.error(f"Failed to send error message: {send_error}")
 
 
 @router.message(F.text)
@@ -333,12 +332,15 @@ async def add_bottom_and_buttons_from_text(
             logger.info(f'content_text is {content_text}')
 
             # Use bot.send_message instead of message.answer so tests can call handler directly
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=content_text,
-                link_preview_options=options_4,
-                reply_markup=builder.as_markup(),
-            )
+            try:
+                await bot.send_message(
+                    chat_id=message.chat.id,
+                    text=content_text,
+                    link_preview_options=options_4,
+                    reply_markup=builder.as_markup(),
+                )
+            except Exception as send_error:
+                logger.error(f"Failed to send message in add_bottom_and_buttons_from_text: {send_error}", exc_info=True)
         else:
 
             if (html_text.find(INITIAL_RATING_TEXT) == -1
@@ -365,13 +367,16 @@ async def add_bottom_and_buttons_from_text(
             logger.info(f'common_text - {common_text}')
 
             # Use bot.edit_message_text instead of message.edit_text so handler works in tests
-            await bot.edit_message_text(
-                text=common_text,
-                chat_id=message.chat.id,
-                message_id=message.message_id,
-                link_preview_options=options_4,
-                reply_markup=builder.as_markup(),
-            )
+            try:
+                await bot.edit_message_text(
+                    text=common_text,
+                    chat_id=message.chat.id,
+                    message_id=message.message_id,
+                    link_preview_options=options_4,
+                    reply_markup=builder.as_markup(),
+                )
+            except Exception as edit_error:
+                logger.error(f"Failed to edit message in add_bottom_and_buttons_from_text: {edit_error}", exc_info=True)
 
         logger.info('Изменяем лайк и суперлайк')
         logger.info(f'like_value - {like_value}')
@@ -382,10 +387,6 @@ async def add_bottom_and_buttons_from_text(
 
     except Exception as e:
         logger.error(f"Error in add_bottom_and_buttons_from_text: {e}", exc_info=True)
-        try:
-            await message.answer("Произошла ошибка при обработке сообщения")
-        except Exception as send_error:
-            logger.error(f"Failed to send error message: {send_error}")
 
 
 @router.callback_query(F.data.startswith("✅"))
@@ -434,7 +435,11 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
             dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['like'] += 1
             logger.info(f'in callback user_data - {dictionary_storing_user_ratings}')
 
-            await callback.answer()
+            try:
+                await callback.answer()
+            except Exception as answer_error:
+                logger.error(f"Failed to send callback answer: {answer_error}", exc_info=True)
+            
             await add_bottom_and_buttons_from_text(callback.message,
                                                    callback.from_user.id,
                                                    questionnaire_message_id,
@@ -447,16 +452,23 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
                   f'{dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]["super_like"]}'
                   )
             if dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['super_like'] > 0:
-                await callback.answer(text=ERROR_SUPER_LIKE_UNAVAILABLE,
-                                      show_alert=True
-                                      )
+                try:
+                    await callback.answer(text=ERROR_SUPER_LIKE_UNAVAILABLE,
+                                          show_alert=True
+                                          )
+                except Exception as answer_error:
+                    logger.error(f"Failed to send callback answer (super_like unavailable): {answer_error}", exc_info=True)
             else:
                 dictionary_storing_message_ratings[questionnaire_message_id]['super_like'] += 1
                 logger.info(f'dict_of_questionnaire_evaluation is {dictionary_storing_message_ratings}')
                 dictionary_storing_user_ratings[callback.from_user.id][questionnaire_message_id]['super_like'] += 1
                 logger.info(f'in callback user_data - {dictionary_storing_user_ratings}')
 
-                await callback.answer()
+                try:
+                    await callback.answer()
+                except Exception as answer_error:
+                    logger.error(f"Failed to send callback answer: {answer_error}", exc_info=True)
+                
                 await add_bottom_and_buttons_from_text(callback.message,
                                                        callback.from_user.id,
                                                        questionnaire_message_id,
@@ -464,18 +476,10 @@ async def callbacks_calculation_of_likes(callback: types.CallbackQuery) -> None:
                                                        dictionary_storing_user_ratings)
     
     except IndexError as e:
-        logger.error(f"Invalid callback data format: {e}")
-        try:
-            await callback.answer(text="Ошибка: некорректные данные", show_alert=True)
-        except Exception as send_error:
-            logger.error(f"Failed to send error callback answer: {send_error}")
+        logger.error(f"Invalid callback data format: {e}", exc_info=True)
     
     except Exception as e:
         logger.error(f"Error in callbacks_calculation_of_likes: {e}", exc_info=True)
-        try:
-            await callback.answer(text="Произошла ошибка при обработке действия", show_alert=True)
-        except Exception as send_error:
-            logger.error(f"Failed to send error callback answer: {send_error}")
 
 
 async def main() -> None:
